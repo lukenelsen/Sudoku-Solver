@@ -16,6 +16,90 @@ using namespace std;
 
 
 
+// Helper Functions
+
+Puzzle get_puzzle_from_user() {
+    cout << "Enter your Sudoku puzzle below, row by row.\n"
+    "For blank cells, enter the '.' character.\n"
+    "Do not separate the entries.  (Example:  .3...27..)\n"
+    "Press Enter when you are finished with a row.\n"  << endl;
+    
+    string board_input = "";
+    string row_input;
+    string allowable_characters = ".123456789";
+    for (int i=1; i<10; i++) {
+        while (true) {
+            cout << "Row " << i << ":  ";
+            cin >> row_input;
+            bool valid_row = true;
+            if (row_input.length() != 9) {
+                cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
+                valid_row = false;
+            }
+            else {
+                for (const char entry : row_input) {
+                    if (allowable_characters.find(entry) == string::npos) {
+                        // If character not in ".123456789", then .find() returns .length()
+                        valid_row = false;
+                        cout << "   Oops!  Invalid character (" << entry << ").  Try again, please." << endl;
+                    }
+                }
+            }
+            if (valid_row) {
+                board_input += row_input;
+                break;
+            }
+            else {
+                cout << "   Try again, please."  << endl;
+            }
+        }
+    }
+    
+    return Puzzle(board_input);
+}
+
+
+
+
+
+// Main Procedure
+
+int main() {
+    //     // Input the puzzle; store as Puzzle object
+    //     Puzzle P;
+    //
+    //     // Test if the input is valid
+    //
+    //
+    //     // Prompt user for whether they want to search for multiple (non-unique)
+    //     bool continue_search;
+    //
+    //     // Start solving!
+    //     while (P.move_to_next_solution()) {
+    //
+    //     }
+    Puzzle P("123456789456789123789123456234567891567891234891234567345678912678912345912345678");
+    P.print_board();
+    
+    
+    
+    Puzzle R = get_puzzle_from_user();
+    R.print_board();
+    cout << R.solution_log << endl;
+    
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+// Member Functions
 
 void Cell::write(int entry) {
     this->value = entry;
@@ -67,44 +151,3 @@ void Puzzle::update_board_string() {
     }
     board_string +=  " -------------------------\n";
 }
-
-
-int main() {
-//     // Input the puzzle; store as Puzzle object
-//     Puzzle P;
-//     
-//     // Test if the input is valid
-//     
-//     
-//     // Prompt user for whether they want to search for multiple (non-unique)
-//     bool continue_search;
-//     
-//     // Start solving!
-//     while (P.move_to_next_solution()) {
-//         
-//     }
-    
-    cout << "Enter the Sudoku puzzle below, row by row.\n"
-            "For blank cells, enter the '.' character.\n"
-            "Do not separate the entries.  (Example:  .3...27..)\n"
-            "Press Enter when you are finished with a row.\n"  << endl;
-    
-    string board_input = "";
-    string row_input;
-    for (int i=1; i<10; i++) {
-        cout << "Row " << i << ":  ";
-        cin >> row_input;
-        board_input += row_input;
-    }
-    
-    
-    Puzzle R(board_input);
-    R.print_board();
-    cout << R.solution_log << endl;
-    
-    return 0;
-}
-
-
-
-
