@@ -22,6 +22,8 @@ public:
     Puzzle();
     Puzzle(string board_input);
     void print_board();
+    void update_board_string();
+    string board_string;
     string solution_log;
 };
 

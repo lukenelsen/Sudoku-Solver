@@ -25,40 +25,49 @@ void Cell::write(int entry) {
 
 
 Puzzle::Puzzle() {
-    solution_log = "";
+    solution_log = "Board initialized as empty.\n";
+    update_board_string();
 }
 
 
 
 Puzzle::Puzzle(string board_input) {
-    solution_log = "Board initialized with the following entries:";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             char entry = board_input[9*i+j];
-            if (entry != '.') { board[i][j].write((int)entry-48); }
+            if (entry != '.') {
+                board[i][j].write((int)entry-48);
+            }
         }
     }
+    update_board_string();
+    solution_log = "Board initialized with the following entries:\n" + board_string;
 }
 
 
 
 void Puzzle::print_board() {
-    for (int i=0; i<9; i++) {
-        if (i%3 == 0) {cout << " -------------------------" << endl;}
-        for (int j=0; j<9; j++) {
-            if (j%3 == 0) {cout << " |";}
-            if (board[i][j].value > 0) {
-                cout << " " << board[i][j].value;
-            }
-            else {cout << " .";}
-        }
-        cout << " |" << endl;
-    }
-    cout << " -------------------------" << endl;
+    cout << board_string;
 }
 
 
-//int main(int argc, const char * argv[]) {
+
+void Puzzle::update_board_string() {
+    board_string = "";
+    for (int i=0; i<9; i++) {
+        if (i%3 == 0) {board_string += " -------------------------\n";}
+        for (int j=0; j<9; j++) {
+            if (j%3 == 0) {board_string +=  " |";}
+            if (board[i][j].value > 0) {
+                board_string +=  " " + to_string(board[i][j].value);
+            }
+            else {board_string +=  " .";}
+        }
+        board_string +=  " |\n";
+    }
+    board_string +=  " -------------------------\n";
+}
+
 
 int main() {
 //     // Input the puzzle; store as Puzzle object
@@ -74,15 +83,6 @@ int main() {
 //     while (P.move_to_next_solution()) {
 //         
 //     }
-    Puzzle P;
-    P.print_board();
-    
-    cout << "Meow!" << endl << endl;
-    
-    Puzzle Q("123456789234567891345678912456789123567891234678912345789123456891234567912345678");
-    Q.print_board();
-    
-    cout << 343 << endl << endl;
     
     cout << "Enter the Sudoku puzzle below, row by row.\n"
             "For blank cells, enter the '.' character.\n"
@@ -100,6 +100,7 @@ int main() {
     
     Puzzle R(board_input);
     R.print_board();
+    cout << R.solution_log << endl;
     
     return 0;
 }
