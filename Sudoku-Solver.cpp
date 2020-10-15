@@ -35,7 +35,7 @@ Puzzle get_puzzle_from_user() {
             while (true) {  // Break from this loop when row has been entered in correct format.
                 cout << "Row " << i << ":  ";
                 cin >> row_input;
-                if (row_input == "sample") { break; }  // Shortcut for testing
+                if ((row_input == "sample") || (row_input == "sample1")) { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
                     cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
@@ -60,6 +60,10 @@ Puzzle get_puzzle_from_user() {
             }
             if (row_input == "sample") {  // Shortcut for testing
                 board_input = "123456789456789123789123456234567891567891234891234567345678912678912345912345678";
+                break;
+            }
+            if (row_input == "sample1") {  // Shortcut for testing
+                board_input = ".3...27..123456.89...............................................................";
                 break;
             }
         }
@@ -100,13 +104,20 @@ int main() {
     
     
     // We begin by asking the user to enter the puzzle entries.
-    Puzzle R = get_puzzle_from_user();
+    Puzzle P = get_puzzle_from_user();
+    P.update_available_options_all();
+    for (Cell c : P.board[0]) {
+        for (int o : c.available) {
+            cout << o;
+        }
+        cout << endl;
+    }
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
     //   unfilled cells have at least one available option).
-//    if (R.check_for_obvious_problems()) {
-//        
+//    if (P.check_for_obvious_problems()) {
+//
 //    }
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
     //   Our menu options will depend on which of these cases we are in.
@@ -189,4 +200,69 @@ void Puzzle::update_board_string() {
         board_string +=  " |\n";
     }
     board_string +=  " -------------------------\n";
+}
+
+
+
+void Puzzle::update_available_options_all() {
+    // For each cell, removes any of its currently available options which are found in the cell's
+    //   row, column, or house.  (Does not add to available.)
+    for (int i=0; i<9; i++) {
+        for (int j=0; j<9; j++) {
+            Cell & c = board[i][j];
+            list<int> to_remove = {};
+            for (int option : c.available) {  // If cell is already filled, then available is empty.
+                bool removed = false;
+                // Check row
+                for (int k=0; k<9; k++) {
+                    if (board[i][k].value == option) {
+                        to_remove.push_back(option);
+                        removed = true;
+                        break;
+                    }
+                }
+                if (removed) {continue;}
+                // Check column
+                for (int k=0; k<9; k++) {
+                    if (board[k][j].value == option) {
+                        to_remove.push_back(option);
+                        removed = true;
+                        break;
+                    }
+                }
+                if (removed) {continue;}
+                // Check house
+                for (int k=0; k<3; k++) {
+                    for (int l=0; l<3; l++) {
+                        if (board[3*(i/3)+k][3*(j/3)+l].value == option) {
+                            to_remove.push_back(option);
+                            removed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            for (int option : to_remove) { c.available.remove(option); }
+        }
+    }
+}
+
+
+
+
+string Puzzle::check_for_obvious_problems() {
+    // Check that no row has any repreat entries
+    
+    
+    // Check that no column has any repreat entries
+    
+    
+    // Check that no house has any repreat entries
+    
+    
+    // Check that every unfilled cell has at least one available option
+    
+    
+    
+    return "no problems";
 }

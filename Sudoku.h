@@ -23,8 +23,10 @@ public:
     Puzzle(string board_input);
     void print_board();
     void update_board_string();
+    void update_available_options_all();
     string board_string;
     string solution_log;
+    string check_for_obvious_problems();
 };
 
 
