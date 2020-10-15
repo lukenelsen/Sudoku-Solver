@@ -35,6 +35,7 @@ Puzzle get_puzzle_from_user() {
             while (true) {  // Break from this loop when row has been entered in correct format.
                 cout << "Row " << i << ":  ";
                 cin >> row_input;
+                if (row_input == "sample") { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
                     cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
@@ -56,6 +57,10 @@ Puzzle get_puzzle_from_user() {
                 else {
                     cout << "   Try again, please."  << endl;
                 }
+            }
+            if (row_input == "sample") {  // Shortcut for testing
+                board_input = "123456789456789123789123456234567891567891234891234567345678912678912345912345678";
+                break;
             }
         }
         
@@ -93,17 +98,16 @@ Puzzle get_puzzle_from_user() {
 
 int main() {
     
-    // Sample solved puzzle:
-//    Puzzle P("123456789456789123789123456234567891567891234891234567345678912678912345912345678");
-//    P.print_board();
-    // ^^This should be the first solution found when given the empty board.
-    
     
     // We begin by asking the user to enter the puzzle entries.
     Puzzle R = get_puzzle_from_user();
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
-    //   any rules (namely that there are no repeat numbers in any row, column, or house).
+    //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
+    //   unfilled cells have at least one available option).
+//    if (R.check_for_obvious_problems()) {
+//        
+//    }
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
     //   Our menu options will depend on which of these cases we are in.
     
