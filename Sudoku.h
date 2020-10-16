@@ -26,7 +26,7 @@ public:
     void update_available_options_all();
     string board_string;
     string solution_log;
-    string check_for_obvious_problems();
+    bool check_for_obvious_problems();
 };
 
 

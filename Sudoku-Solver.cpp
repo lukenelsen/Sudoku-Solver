@@ -35,7 +35,8 @@ Puzzle get_puzzle_from_user() {
             while (true) {  // Break from this loop when row has been entered in correct format.
                 cout << "Row " << i << ":  ";
                 cin >> row_input;
-                if ((row_input == "sample") || (row_input == "sample1")) { break; }  // Shortcut for testing
+                if ((row_input == "sample") || (row_input == "sample1")
+                    || (row_input == "sample2") || (row_input == "sample3")) { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
                     cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
@@ -62,8 +63,16 @@ Puzzle get_puzzle_from_user() {
                 board_input = "123456789456789123789123456234567891567891234891234567345678912678912345912345678";
                 break;
             }
-            if (row_input == "sample1") {  // Shortcut for testing
+            else if (row_input == "sample1") {  // Shortcut for testing
                 board_input = ".3...27..123456.89...............................................................";
+                break;
+            }
+            else if (row_input == "sample2") {  // Shortcut for testing
+                board_input = "555......55.......5..............................................................";
+                break;
+            }
+            else if (row_input == "sample3") {  // Shortcut for testing
+                board_input = ".123456789.......................................................................";
                 break;
             }
         }
@@ -101,26 +110,23 @@ Puzzle get_puzzle_from_user() {
 // Main Procedure
 
 int main() {
-    
-    
     // We begin by asking the user to enter the puzzle entries.
+    
     Puzzle P = get_puzzle_from_user();
     P.update_available_options_all();
-    for (Cell c : P.board[0]) {
-        for (int o : c.available) {
-            cout << o;
-        }
-        cout << endl;
-    }
+    
+    
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
     //   unfilled cells have at least one available option).
-//    if (P.check_for_obvious_problems()) {
-//
-//    }
+    
+    if (P.check_for_obvious_problems()) { cout << "Uh-oh!  There are some problems with the puzzle board.\n"; }P.solution_log;
+    
+    
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
     //   Our menu options will depend on which of these cases we are in.
+    
     
     
     // If the puzzle has not already broken rules, then prompt the user for what information they want.
@@ -133,8 +139,6 @@ int main() {
     //      step back (undo previous action);
     //      check if a particular tool applies to the current puzzle state.
 
-    
-    
     
     
     return 0;
@@ -250,19 +254,49 @@ void Puzzle::update_available_options_all() {
 
 
 
-string Puzzle::check_for_obvious_problems() {
-    // Check that no row has any repreat entries
-    
-    
-    // Check that no column has any repreat entries
-    
-    
-    // Check that no house has any repreat entries
-    
-    
-    // Check that every unfilled cell has at least one available option
-    
-    
-    
-    return "no problems";
+bool Puzzle::check_for_obvious_problems() {
+    string add_to_log = "";
+    for (int i=0; i<9; i++) {
+        for (int j=0; j<9; j++) {
+            Cell & c = board[i][j];
+            if ((c.value == 0) && (c.available.size() == 0)) {
+                add_to_log += "Problem found (No Options): The cell in R"+to_string(i+1)+"C"+to_string(j+1);
+                add_to_log += " is unfilled but has no available options.\n";
+            }
+            else if (c.value > 0) {
+                // Check row
+                for (int k=j+1; k<9; k++) {
+                    if (board[i][k].value == c.value) {
+                        add_to_log += "Problem found (Row Repeat):  The cells in R"+to_string(i+1);
+                        add_to_log += "C"+to_string(j+1)+" and R"+to_string(i+1)+"C"+to_string(k+1);
+                        add_to_log += " both have a "+to_string(c.value)+".\n";
+                    }
+                }
+                // Check column
+                for (int k=i+1; k<9; k++) {
+                    if (board[k][j].value == c.value) {
+                        add_to_log += "Problem found (Column Repeat):  The cells in R"+to_string(i+1);
+                        add_to_log += "C"+to_string(j+1)+" and R"+to_string(k+1)+"C"+to_string(j+1);
+                        add_to_log += " both have a "+to_string(c.value)+".\n";
+                    }
+                }
+                // Check house
+                for (int k=0; k<3; k++) {
+                    for (int l=0; l<3; l++) {
+                        // The following check prevents comparing the same row, column, or previously inspected cell.
+                        // The inequality 9*i+j >= 9*(3*(i/3)+k)+(3*(j/3)+l) means that the [i][j] cell is
+                        // ahead of the [3*(i/3)+k][3*(j/3)+l] cell.
+                        if ( (k==i) || (l==j) || ( 9*i+j >= 9*(3*(i/3)+k)+(3*(j/3)+l) ) ) { continue; }
+                        if (board[3*(i/3)+k][3*(j/3)+l].value == c.value) {
+                            add_to_log += "Problem found (House Repeat):  The cells in R"+to_string(i+1);
+                            add_to_log += "C"+to_string(j+1)+" and R"+to_string(3*(i/3)+k+1)+"C"+to_string(3*(j/3)+l+1);
+                            add_to_log += " both have a "+to_string(c.value)+".\n";
+                        }
+                    }
+                }
+            }
+        }
+    }
+    solution_log += add_to_log;
+    return (add_to_log == "" ? false : true);
 }
