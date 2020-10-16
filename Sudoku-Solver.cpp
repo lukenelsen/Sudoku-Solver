@@ -121,7 +121,7 @@ int main() {
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
     //   unfilled cells have at least one available option).
     
-    if (P.check_for_obvious_problems()) { cout << "Uh-oh!  There are some problems with the puzzle board.\n"; }P.solution_log;
+    if (P.check_for_obvious_problems()) { cout << "Uh-oh!  There are some problems with the puzzle board.\n"; }
     
     
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
