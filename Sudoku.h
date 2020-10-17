@@ -16,6 +16,17 @@ public:
     void write(int entry);
 };
 
+
+class StepUnit {
+public:
+    string step_type;  // Either "write" or "remove"
+    int coords [2];
+    int entry;
+    list<int> available_removed;
+    StepUnit(string step_type, int row_coord, int col_coord, int entry, list<int> available_removed);
+    string log_line;
+};
+
 class Puzzle {
 public:
     Cell board [9][9];
@@ -27,6 +38,7 @@ public:
     string board_string;
     string solution_log;
     bool check_for_obvious_problems();
+    vector<StepUnit> step_stack;
 };
 
 

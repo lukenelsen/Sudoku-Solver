@@ -114,14 +114,17 @@ int main() {
     
     Puzzle P = get_puzzle_from_user();
     P.update_available_options_all();
-    
+    cout << P.solution_log;
     
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
     //   unfilled cells have at least one available option).
     
-    if (P.check_for_obvious_problems()) { cout << "Uh-oh!  There are some problems with the puzzle board.\n"; }
+    if (P.check_for_obvious_problems()) {
+        cout << "Uh-oh!  There are some problems with the puzzle board.\n";
+        return 0;
+    }
     
     
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
@@ -162,6 +165,25 @@ void Cell::write(int entry) {
 
 
 
+StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, list<int> available_removed) {
+    if (step_type != "write" && step_type != "remove") {cout << "WARNING:  Invalid step type for StepUnit.";}
+    this->step_type = step_type;
+    this->coords[0] = row_coord;  // (coords values are 0-indexed, but
+    this->coords[1] = col_coord;  // log_line prints 1-indexed for user.)
+    this->entry = entry;  // should be 0 if step_type is "remove"
+    this->available_removed = available_removed; // should be all of Cell.available if step_type is "write"
+    if (step_type == "write") {
+        this->log_line = "   Write value "+to_string(entry)+" to r"+to_string(row_coord+1)+"c"+to_string(col_coord+1);
+    }
+    else if (step_type == "remove") {
+        this->log_line = "   Remove possible value(s) from r"+to_string(row_coord+1)+"c"+to_string(col_coord+1)+": ";
+        for (int option : available_removed) { this->log_line += " "+to_string(option); }
+    }
+    this->log_line += ".\n";
+}
+
+
+
 Puzzle::Puzzle() {
     solution_log = "Board initialized as empty.\n";
     update_board_string();
@@ -170,16 +192,20 @@ Puzzle::Puzzle() {
 
 
 Puzzle::Puzzle(string board_input) {
+    solution_log = "Board initialized:\n";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             char entry = board_input[9*i+j];
             if (entry != '.') {
                 board[i][j].write((int)entry-48);
+                StepUnit s("write",i,j,(int)entry-48,{1,2,3,4,5,6,7,8,9});
+                step_stack.push_back(s);
+                solution_log += s.log_line;
             }
         }
     }
     update_board_string();
-    solution_log = "Board initialized with the following entries:\n" + board_string;
+    solution_log += board_string;
 }
 
 
@@ -211,6 +237,7 @@ void Puzzle::update_board_string() {
 void Puzzle::update_available_options_all() {
     // For each cell, removes any of its currently available options which are found in the cell's
     //   row, column, or house.  (Does not add to available.)
+    solution_log += "Update available values affected by initialization:\n";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             Cell & c = board[i][j];
@@ -246,7 +273,12 @@ void Puzzle::update_available_options_all() {
                     }
                 }
             }
-            for (int option : to_remove) { c.available.remove(option); }
+            if (to_remove.size() > 0) {
+                for (int option : to_remove) { c.available.remove(option); }
+                StepUnit s("remove",i,j,0,{to_remove});
+                step_stack.push_back(s);
+                solution_log += s.log_line;
+            }
         }
     }
 }
