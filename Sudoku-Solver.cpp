@@ -107,10 +107,10 @@ Puzzle get_puzzle_from_user() {
 
 void test() {
     Puzzle P("123456789........................................................................");
-    cout << P.solution_log;
+    P.print_log();
     StepUnit stepunit("remove", 2, 1, 0, {7});
     P.apply_stepunit(stepunit);
-    cout << P.solution_log;
+    P.print_log();
 }
 
 
@@ -128,7 +128,7 @@ int main() {
     
     Puzzle P = get_puzzle_from_user();
     P.update_available_options_all();
-    cout << P.solution_log;
+    P.print_log();
     
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
@@ -199,14 +199,14 @@ StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, li
 
 
 Puzzle::Puzzle() {
-    solution_log = "Board initialized as empty.\n";
+    log_stack = {"Board initialized as empty.\n"};
     update_board_string();
 }
 
 
 
 Puzzle::Puzzle(string board_input) {
-    solution_log = "Board initialized:\n";
+    string add_to_log = "Board initialized:\n";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             char entry = board_input[9*i+j];
@@ -214,18 +214,25 @@ Puzzle::Puzzle(string board_input) {
                 board[i][j].write((int)entry-48);
                 StepUnit s("write",i,j,(int)entry-48,{1,2,3,4,5,6,7,8,9});
                 step_stack.push_back(s);
-                solution_log += s.log_line;
+                add_to_log += s.log_line;
             }
         }
     }
     update_board_string();
-    solution_log += board_string;
+    add_to_log += board_string;
+    log_stack.push_back(add_to_log);
 }
 
 
 
 void Puzzle::print_board() {
     cout << board_string;
+}
+
+
+
+void Puzzle::print_log() {
+    for (string s : log_stack) { cout << s; }
 }
 
 
@@ -251,7 +258,7 @@ void Puzzle::update_board_string() {
 void Puzzle::update_available_options_all() {
     // For each cell, removes any of its currently available options which are found in the cell's
     //   row, column, or house.  (Does not add to available.)
-    solution_log += "Update available values affected by initialization:\n";
+    string add_to_log = "Update available values affected by initialization:\n";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             Cell & c = board[i][j];
@@ -291,10 +298,11 @@ void Puzzle::update_available_options_all() {
                 for (int option : to_remove) { c.available.remove(option); }
                 StepUnit s("remove",i,j,0,{to_remove});
                 step_stack.push_back(s);
-                solution_log += s.log_line;
+                add_to_log += s.log_line;
             }
         }
     }
+    log_stack.push_back(add_to_log);
 }
 
 
@@ -342,7 +350,7 @@ bool Puzzle::check_for_obvious_problems() {
             }
         }
     }
-    solution_log += add_to_log;
+    log_stack.push_back(add_to_log);
     return (add_to_log == "" ? false : true);
 }
 
@@ -357,7 +365,7 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
         while (it != (cellptr->available).end() && *it>num) { it++; }
         (cellptr->available).insert(it, num);
     }
-    solution_log += stepunit.log_line;
+    log_stack.push_back(stepunit.log_line);
 }
 
 

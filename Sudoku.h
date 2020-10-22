@@ -33,10 +33,11 @@ public:
     Puzzle();
     Puzzle(string board_input);
     void print_board();
+    void print_log();
     void update_board_string();
     void update_available_options_all();
     string board_string;
-    string solution_log;
+    list<string> log_stack;
     bool check_for_obvious_problems();
     vector<StepUnit> step_stack;
     void apply_stepunit(StepUnit & stepunit);
