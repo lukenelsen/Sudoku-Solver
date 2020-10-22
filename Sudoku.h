@@ -39,6 +39,14 @@ public:
     string solution_log;
     bool check_for_obvious_problems();
     vector<StepUnit> step_stack;
+    void apply_stepunit(StepUnit & stepunit);
+    void unapply_stepunit(StepUnit & stepunit);
+//    void apply_step(list<StepUnit> & step);
+//    void unapply_step(list<StepUnit> & step);
+//    void step_back();
+//    void step_forward();
+//    void solution_back();
+//    void solution_forward();
 };
 
 

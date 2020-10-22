@@ -105,11 +105,25 @@ Puzzle get_puzzle_from_user() {
 
 
 
+void test() {
+    Puzzle P("123456789........................................................................");
+    cout << P.solution_log;
+    StepUnit stepunit("remove", 2, 1, 0, {7});
+    P.apply_stepunit(stepunit);
+    cout << P.solution_log;
+}
+
+
+
 
 
 // Main Procedure
 
 int main() {
+    
+    test();
+    
+    
     // We begin by asking the user to enter the puzzle entries.
     
     Puzzle P = get_puzzle_from_user();
@@ -285,7 +299,6 @@ void Puzzle::update_available_options_all() {
 
 
 
-
 bool Puzzle::check_for_obvious_problems() {
     string add_to_log = "";
     for (int i=0; i<9; i++) {
@@ -332,3 +345,22 @@ bool Puzzle::check_for_obvious_problems() {
     solution_log += add_to_log;
     return (add_to_log == "" ? false : true);
 }
+
+
+
+void Puzzle::apply_stepunit(StepUnit & stepunit) {
+    Cell * cellptr = &board[stepunit.coords[0]][stepunit.coords[1]];
+    cellptr->value = stepunit.entry;  // Primarily for "write" type, but changes nothing for "remove" type.
+    list<int>::iterator it;
+    it = (cellptr->available).begin();
+    for (int num : stepunit.available_removed) {
+        while (it != (cellptr->available).end() && *it>num) { it++; }
+        (cellptr->available).insert(it, num);
+    }
+    solution_log += stepunit.log_line;
+}
+
+
+
+
+
