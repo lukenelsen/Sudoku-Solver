@@ -108,9 +108,23 @@ Puzzle get_puzzle_from_user() {
 void test() {
     Puzzle P("123456789........................................................................");
     P.print_log();
+    for (int i=0; i<9; i++) {
+        for (int j=0; j<9; j++) {
+            cout << "r"+to_string(i+1)+"c"+to_string(j+1)+":  ";
+            for (int option : P.board[i][j].available) { cout << to_string(option); }
+            cout << endl;
+        }
+    }
     StepUnit stepunit("remove", 2, 1, 0, {7});
     P.apply_stepunit(stepunit);
     P.print_log();
+    for (int i=0; i<9; i++) {
+        for (int j=0; j<9; j++) {
+            cout << "r"+to_string(i+1)+"c"+to_string(j+1)+":  ";
+            for (int option : P.board[i][j].available) { cout << to_string(option); }
+            cout << endl;
+        }
+    }
 }
 
 
@@ -361,12 +375,23 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
     cellptr->value = stepunit.entry;  // Primarily for "write" type, but changes nothing for "remove" type.
     list<int>::iterator it;
     it = (cellptr->available).begin();
-    for (int num : stepunit.available_removed) {
-        while (it != (cellptr->available).end() && *it>num) { it++; }
-        (cellptr->available).insert(it, num);
-    }
+    for (int num : stepunit.available_removed) { cellptr->available.remove(num); }
     log_stack.push_back(stepunit.log_line);
 }
+
+
+
+//void Puzzle::apply_stepunit(StepUnit & stepunit) {
+//    Cell * cellptr = &board[stepunit.coords[0]][stepunit.coords[1]];
+//    cellptr->value = stepunit.entry;  // Primarily for "write" type, but changes nothing for "remove" type.
+//    list<int>::iterator it;
+//    it = (cellptr->available).begin();
+//    for (int num : stepunit.available_removed) {
+//        while (it != (cellptr->available).end() && *it>num) { it++; }
+//        (cellptr->available).insert(it, num);
+//    }
+//    log_stack.push_back(stepunit.log_line);
+//}
 
 
 
