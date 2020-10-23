@@ -419,6 +419,7 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
     it = (cellptr->available).begin();
     for (int num : stepunit.available_removed) { cellptr->available.remove(num); }
     log_stack.push_back(stepunit.log_line);
+    step_stack.push_back(stepunit);
 }
 
 
@@ -433,6 +434,7 @@ void Puzzle::unapply_stepunit(StepUnit & stepunit) {
         (cellptr->available).insert(it, num);
     }
     log_stack.pop_back();
+    step_stack.pop_back();
 }
 
 
