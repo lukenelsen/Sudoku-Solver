@@ -30,8 +30,7 @@ void test() {
     
     StepUnit stepunit = P.step_stack.back();
     cout << stepunit.log_line << endl;
-    P.step_stack.pop_back();
-    P.unapply_stepunit(stepunit);
+    P.unapply_last_stepunit();
     cout << P.make_board_available_string() << endl << endl;
 }
 
@@ -424,7 +423,8 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
 
 
 
-void Puzzle::unapply_stepunit(StepUnit & stepunit) {
+void Puzzle::unapply_last_stepunit() {
+    StepUnit & stepunit = step_stack.back();
     Cell * cellptr = &board[stepunit.coords[0]][stepunit.coords[1]];
     if (stepunit.step_type == "write") { cellptr->value = 0; }
     list<int>::iterator it;
