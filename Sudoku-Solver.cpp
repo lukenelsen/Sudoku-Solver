@@ -108,33 +108,14 @@ Puzzle get_puzzle_from_user() {
 void test() {
     Puzzle P("123456789........................................................................");
     P.update_available_options_all();
-    P.print_log();
-    for (int i=0; i<9; i++) {
-        for (int j=0; j<9; j++) {
-            cout << "r"+to_string(i+1)+"c"+to_string(j+1)+":  ";
-            for (int option : P.board[i][j].available) { cout << to_string(option); }
-            cout << endl;
-        }
-    }
+    cout << P.make_board_available_string() << endl << endl;
+    
     StepUnit stepunit("remove", 2, 1, 0, {1,2,3,7,7,9});
     P.apply_stepunit(stepunit);
-    P.print_log();
-    for (int i=0; i<9; i++) {
-        for (int j=0; j<9; j++) {
-            cout << "r"+to_string(i+1)+"c"+to_string(j+1)+":  ";
-            for (int option : P.board[i][j].available) { cout << to_string(option); }
-            cout << endl;
-        }
-    }
+    cout << P.make_board_available_string() << endl << endl;
+    
     P.unapply_stepunit(stepunit);
-    P.print_log();
-    for (int i=0; i<9; i++) {
-        for (int j=0; j<9; j++) {
-            cout << "r"+to_string(i+1)+"c"+to_string(j+1)+":  ";
-            for (int option : P.board[i][j].available) { cout << to_string(option); }
-            cout << endl;
-        }
-    }
+    cout << P.make_board_available_string() << endl << endl;
 }
 
 
@@ -146,6 +127,7 @@ void test() {
 int main() {
     
     test();
+    return 0;
     
     
     // We begin by asking the user to enter the puzzle entries.
@@ -267,6 +249,59 @@ string Puzzle::make_board_entry_string() {
         board_string +=  " |\n";
     }
     board_string +=  " -------------------------\n";
+    return board_string;
+}
+
+
+
+string Puzzle::make_board_available_string() {
+    list<string> string_stack;
+    list<string>::iterator it;
+    for (int i = 0; i<9; i++) {
+        if (i%3==0) { string_stack.push_back(" X-----------------X-----------------X-----------------X\n"); }
+        else { string_stack.push_back(" |-----+-----+-----|-----+-----+-----|-----+-----+-----|\n"); }
+        string_stack.push_back(" |");
+        string_stack.push_back(" |");
+        string_stack.push_back(" |");
+        it = string_stack.end();
+        it--;
+        it--;
+        it--;
+        for (int j=0; j<9; j++) {
+            Cell * c = &board[i][j];
+            if (c->value > 0) {
+                *it += "("+to_string(c->value)+")  |";
+                it++;
+                *it += "     |";
+                it++;
+                *it += "     |";
+            }
+            else {
+                list<int>::iterator a = c->available.begin();
+                list<int>::iterator b = c->available.end();
+                *it += " ";
+                for (int k : {1,2,3}) { *it += (find(a,b,k) != b ? to_string(k) : " "); }
+                *it += " |";
+                *(++it) += " ";
+                for (int k : {4,5,6}) { *it += (find(a,b,k) != b ? to_string(k) : " "); }
+                *it += " |";
+                *(++it) += " ";
+                for (int k : {7,8,9}) { *it += (find(a,b,k) != b ? to_string(k) : " "); }
+                *it += " |";
+            }
+            it--;
+            it--;
+        }
+        *it += "\n";
+        it++;
+        *it += "\n";
+        it++;
+        *it += "\n";
+        it++;
+    }
+    string_stack.push_back(" X-----------------X-----------------X-----------------X\n");
+    string board_string = "";
+    for (string s : string_stack) { board_string += s; }
     return board_string;
 }
 
