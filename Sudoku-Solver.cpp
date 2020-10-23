@@ -80,7 +80,7 @@ Puzzle get_puzzle_from_user() {
         // Now ask user to verify puzzle; if not, prompt user to re-enter.
         Puzzle P(board_input);
         cout << endl << "Here is the puzzle you entered:" << endl;
-        P.print_board();
+        cout << P.make_board_entry_string();
         cout << endl << "Is this correct?  (y/n)" << endl;
         while (true) {  // Function exits for 'y'; loop breaks for 'n'; loop continues otherwise.
             string user_verify_input;
@@ -224,7 +224,6 @@ StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, li
 
 Puzzle::Puzzle() {
     log_stack = {"Board initialized as empty.\n"};
-    update_board_string();
 }
 
 
@@ -242,15 +241,8 @@ Puzzle::Puzzle(string board_input) {
             }
         }
     }
-    update_board_string();
-    add_to_log += board_string;
+    add_to_log += make_board_entry_string();
     log_stack.push_back(add_to_log);
-}
-
-
-
-void Puzzle::print_board() {
-    cout << board_string;
 }
 
 
@@ -261,8 +253,8 @@ void Puzzle::print_log() {
 
 
 
-void Puzzle::update_board_string() {
-    board_string = "";
+string Puzzle::make_board_entry_string() {
+    string board_string = "";
     for (int i=0; i<9; i++) {
         if (i%3 == 0) {board_string += " -------------------------\n";}
         for (int j=0; j<9; j++) {
@@ -275,6 +267,7 @@ void Puzzle::update_board_string() {
         board_string +=  " |\n";
     }
     board_string +=  " -------------------------\n";
+    return board_string;
 }
 
 

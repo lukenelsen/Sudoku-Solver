@@ -32,11 +32,9 @@ public:
     Cell board [9][9];
     Puzzle();
     Puzzle(string board_input);
-    void print_board();
     void print_log();
-    void update_board_string();
+    string make_board_entry_string();
     void update_available_options_all();
-    string board_string;
     list<string> log_stack;
     bool check_for_obvious_problems();
     vector<StepUnit> step_stack;
