@@ -18,6 +18,25 @@ using namespace std;
 
 // Helper Functions
 
+
+
+void test() {
+    Puzzle P("123456789........................................................................");
+    P.update_available_options_all();
+    cout << P.make_board_available_string() << endl << endl;
+    
+    P.make_guess(1,0);
+    cout << P.make_board_available_string() << endl << endl;
+    
+    StepUnit stepunit = P.step_stack.back();
+    cout << stepunit.log_line << endl;
+    P.step_stack.pop_back();
+    P.unapply_stepunit(stepunit);
+    cout << P.make_board_available_string() << endl << endl;
+}
+
+
+
 Puzzle get_puzzle_from_user() {
     while (true) {  // Function exits when user enters puzzle and verifies correctness.
         
@@ -101,21 +120,6 @@ Puzzle get_puzzle_from_user() {
             }
         }
     }
-}
-
-
-
-void test() {
-    Puzzle P("123456789........................................................................");
-    P.update_available_options_all();
-    cout << P.make_board_available_string() << endl << endl;
-    
-    StepUnit stepunit("remove", 2, 1, 0, {1,2,3,7,7,9});
-    P.apply_stepunit(stepunit);
-    cout << P.make_board_available_string() << endl << endl;
-    
-    P.unapply_stepunit(stepunit);
-    cout << P.make_board_available_string() << endl << endl;
 }
 
 
@@ -429,6 +433,14 @@ void Puzzle::unapply_stepunit(StepUnit & stepunit) {
         (cellptr->available).insert(it, num);
     }
     log_stack.pop_back();
+}
+
+
+
+void Puzzle::make_guess(int row, int col) {
+    int guess = board[row][col].available.front();
+    StepUnit stepunit("write", row, col, guess, board[row][col].available);
+    apply_stepunit(stepunit);
 }
 
 
