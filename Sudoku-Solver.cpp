@@ -22,7 +22,6 @@ using namespace std;
 
 void test() {
     Puzzle P("123456789........................................................................");
-    P.update_available_options_all();
     cout << P.make_board_available_string() << endl << endl;
     
     P.make_guess(1,0);
@@ -129,14 +128,14 @@ Puzzle get_puzzle_from_user() {
 int main() {
     
     test();
-    return 0;
+//    return 0;
     
     
     // We begin by asking the user to enter the puzzle entries.
     
     Puzzle P = get_puzzle_from_user();
-    P.update_available_options_all();
     P.print_log();
+    cout << P.make_board_available_string();
     
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
@@ -217,6 +216,7 @@ Puzzle::Puzzle(string board_input) {
             }
         }
     }
+    update_available_options_all();
 }
 
 
