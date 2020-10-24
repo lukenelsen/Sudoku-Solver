@@ -42,6 +42,7 @@ public:
     void make_guess(int row, int col);
     vector<int> choose_guess_cell();
     bool move_to_next_solution();
+    bool is_board_filled();
 //    void apply_step(list<StepUnit> & step);
 //    void unapply_step(list<StepUnit> & step);
 //    void step_back();

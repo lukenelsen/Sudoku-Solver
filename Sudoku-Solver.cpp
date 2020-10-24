@@ -18,20 +18,13 @@ using namespace std;
 
 // Helper Functions
 
-
-
-void test() {
-    Puzzle P("123456789........................................................................");
-    cout << P.make_board_available_string() << endl << endl;
-    
-    vector<int> coords = P.choose_guess_cell();
-    P.make_guess(coords[0],coords[1]);
-    cout << P.make_board_available_string() << endl << endl;
-    P.print_log();
-    
-    P.unapply_last_stepunit();
-    cout << P.make_board_available_string() << endl << endl;
-}
+//void test() {
+//    Puzzle P("123456789........................................................................");
+//    P.move_to_next_solution();
+//    P.print_log();
+//    cout << P.make_board_entry_string() << endl << endl;
+//    cout << P.make_board_available_string() << endl << endl;
+//}
 
 
 
@@ -53,7 +46,8 @@ Puzzle get_puzzle_from_user() {
                 cout << "Row " << i << ":  ";
                 cin >> row_input;
                 if ((row_input == "sample") || (row_input == "sample1")
-                    || (row_input == "sample2") || (row_input == "sample3")) { break; }  // Shortcut for testing
+                    || (row_input == "sample2") || (row_input == "sample3")
+                    || (row_input == "sample4")) { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
                     cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
@@ -92,6 +86,10 @@ Puzzle get_puzzle_from_user() {
                 board_input = ".123456789.......................................................................";
                 break;
             }
+            else if (row_input == "sample4") {  // Shortcut for testing
+                board_input = "...26.7.168..7..9.19...45..82.1...4...46.29...5...3.28..93...74.4..5..367.3.18...";
+                break;
+            }
         }
         
         // Now ask user to verify puzzle; if not, prompt user to re-enter.
@@ -128,7 +126,7 @@ Puzzle get_puzzle_from_user() {
 
 int main() {
     
-    test();
+//    test();
 //    return 0;
     
     
@@ -147,6 +145,12 @@ int main() {
         cout << "Uh-oh!  There are some problems with the puzzle board.\n";
         return 0;
     }
+    
+    
+    P.move_to_next_solution();
+    P.print_log();
+    cout << P.make_board_entry_string() << endl << endl;
+    cout << P.make_board_available_string() << endl << endl;
     
     
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
@@ -449,18 +453,43 @@ vector<int> Puzzle::choose_guess_cell() {
 
 
 
+bool Puzzle::is_board_filled() {
+    for (int k=0; k<81; k++) { if (board[k/9][k%9].value == 0) { return false; } }
+    return true;
+}
+
+
 
 bool Puzzle::move_to_next_solution() {
+    // If the board is currently filled, then we need to backtrack and increment one step before starting.
+    // This should be dealt with in the future.  (in case of multiple solutions.)
+//    if (is_board_filled()) {
+//
+//    }
     while (true) {
         // First, see if the current board is clearly unsolvable; if so, backtrack to the most recent guess.
-        if (check_for_obvious_problems()) {
+        while (check_for_obvious_problems()) {
+            // Go back to last guess
+            while (step_stack.back().step_type == "remove") { unapply_last_stepunit(); }
+            int failed_guess = step_stack.back().entry;
+            int row = step_stack.back().coords[0];
+            int col = step_stack.back().coords[1];
+            unapply_last_stepunit();
+            StepUnit remove_failed_guess("remove", row, col, 0, {failed_guess});
+            apply_stepunit(remove_failed_guess);
             
             // ...
             // If we've backtracked all the way to initialization, we should close out the search.
-            // This should be marked in the future.
+            // This should be dealt with in the future.
         }
-        // At this point in the loop we are ready to move forward and make our next guess!
         
+        // At this point in the loop we are ready to move forward and make our next guess!
+        vector<int> coords = choose_guess_cell();
+        make_guess(coords[0],coords[1]);
+        update_available_options_all();
+        
+        // Lastly, check to see if the board is now filled---if so, we've arrived at our next solution!
+        if (is_board_filled()) { return true; }
     }
 }
 
