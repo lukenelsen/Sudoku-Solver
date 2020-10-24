@@ -7,6 +7,7 @@
 using namespace std;
 
 
+
 class Cell {
 public:
     int value;
@@ -15,6 +16,7 @@ public:
     Cell(int v) {value = v; available = {};};
     void write(int entry);
 };
+
 
 
 class StepUnit {
@@ -26,6 +28,8 @@ public:
     StepUnit(string step_type, int row_coord, int col_coord, int entry, list<int> available_removed);
     string log_line;
 };
+
+
 
 class Puzzle {
 public:
@@ -41,6 +45,7 @@ public:
     void unapply_last_stepunit();
     void make_guess(int row, int col);
     vector<int> choose_guess_cell();
+    bool bump_last_guess();
     bool move_to_next_solution();
     bool is_board_filled();
 //    void apply_step(list<StepUnit> & step);

@@ -148,9 +148,7 @@ int main() {
     
     
     P.move_to_next_solution();
-    P.print_log();
     cout << P.make_board_entry_string() << endl << endl;
-    cout << P.make_board_available_string() << endl << endl;
     
     
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
@@ -460,23 +458,37 @@ bool Puzzle::is_board_filled() {
 
 
 
+bool Puzzle::bump_last_guess() {
+    // Go back to last guess
+    while (step_stack.back().step_type == "remove") { unapply_last_stepunit(); }
+    // Note for future:  we might not have a previous guess to go back to.
+    
+    // Record the last guess
+    int failed_guess = step_stack.back().entry;
+    int row = step_stack.back().coords[0];
+    int col = step_stack.back().coords[1];
+    
+    // Undo the last guess and also eliminate that value from available options
+    unapply_last_stepunit();
+    StepUnit remove_failed_guess("remove", row, col, 0, {failed_guess});
+    apply_stepunit(remove_failed_guess);
+    
+    return 0;
+}
+
+
+
 bool Puzzle::move_to_next_solution() {
-    // If the board is currently filled, then we need to backtrack and increment one step before starting.
-    // This should be dealt with in the future.  (in case of multiple solutions.)
-//    if (is_board_filled()) {
-//
-//    }
+    // If the user-defined puzzle has multiple solutions, then the board might currently be filled.
+    // In this case, then we need to backtrack and increment one step before starting.
+    if (is_board_filled()) { bump_last_guess(); }
+    // Note for future:  bump_last_guess might want to go past initialization.
+    
+    // Now search for the next solution.
     while (true) {
-        // First, see if the current board is clearly unsolvable; if so, backtrack to the most recent guess.
+        // First, see if the current board is clearly unsolvable; if so, backtrack through the most recent guess.
         while (check_for_obvious_problems()) {
-            // Go back to last guess
-            while (step_stack.back().step_type == "remove") { unapply_last_stepunit(); }
-            int failed_guess = step_stack.back().entry;
-            int row = step_stack.back().coords[0];
-            int col = step_stack.back().coords[1];
-            unapply_last_stepunit();
-            StepUnit remove_failed_guess("remove", row, col, 0, {failed_guess});
-            apply_stepunit(remove_failed_guess);
+            bump_last_guess();
             
             // ...
             // If we've backtracked all the way to initialization, we should close out the search.
