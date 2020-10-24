@@ -27,9 +27,8 @@ void test() {
     
     P.make_guess(1,0);
     cout << P.make_board_available_string() << endl << endl;
+    P.print_log();
     
-    StepUnit stepunit = P.step_stack.back();
-    cout << stepunit.log_line << endl;
     P.unapply_last_stepunit();
     cout << P.make_board_available_string() << endl << endl;
 }
@@ -207,14 +206,7 @@ StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, li
 
 
 
-Puzzle::Puzzle() {
-    log_stack = {"Board initialized as empty.\n"};
-}
-
-
-
 Puzzle::Puzzle(string board_input) {
-    string add_to_log = "Board initialized:\n";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             char entry = board_input[9*i+j];
@@ -222,18 +214,15 @@ Puzzle::Puzzle(string board_input) {
                 board[i][j].write((int)entry-48);
                 StepUnit s("write",i,j,(int)entry-48,{1,2,3,4,5,6,7,8,9});
                 step_stack.push_back(s);
-                add_to_log += s.log_line;
             }
         }
     }
-    add_to_log += make_board_entry_string();
-    log_stack.push_back(add_to_log);
 }
 
 
 
 void Puzzle::print_log() {
-    for (string s : log_stack) { cout << s; }
+    for (StepUnit s : step_stack) { cout << s.log_line; }
 }
 
 
@@ -357,7 +346,6 @@ void Puzzle::update_available_options_all() {
             }
         }
     }
-    log_stack.push_back(add_to_log);
 }
 
 
@@ -405,7 +393,6 @@ bool Puzzle::check_for_obvious_problems() {
             }
         }
     }
-    log_stack.push_back(add_to_log);
     return (add_to_log == "" ? false : true);
 }
 
@@ -417,7 +404,6 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
     list<int>::iterator it;
     it = (cellptr->available).begin();
     for (int num : stepunit.available_removed) { cellptr->available.remove(num); }
-    log_stack.push_back(stepunit.log_line);
     step_stack.push_back(stepunit);
 }
 
@@ -433,7 +419,6 @@ void Puzzle::unapply_last_stepunit() {
         while (it != (cellptr->available).end() && *it<num) { it++; }
         (cellptr->available).insert(it, num);
     }
-    log_stack.pop_back();
     step_stack.pop_back();
 }
 

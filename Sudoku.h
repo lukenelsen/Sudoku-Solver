@@ -30,13 +30,11 @@ public:
 class Puzzle {
 public:
     Cell board [9][9];
-    Puzzle();
     Puzzle(string board_input);
     void print_log();
     string make_board_entry_string();
     string make_board_available_string();
     void update_available_options_all();
-    list<string> log_stack;
     bool check_for_obvious_problems();
     vector<StepUnit> step_stack;
     void apply_stepunit(StepUnit & stepunit);
