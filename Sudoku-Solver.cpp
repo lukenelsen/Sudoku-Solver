@@ -24,7 +24,8 @@ void test() {
     Puzzle P("123456789........................................................................");
     cout << P.make_board_available_string() << endl << endl;
     
-    P.make_guess(1,0);
+    vector<int> coords = P.choose_guess_cell();
+    P.make_guess(coords[0],coords[1]);
     cout << P.make_board_available_string() << endl << endl;
     P.print_log();
     
@@ -428,6 +429,39 @@ void Puzzle::make_guess(int row, int col) {
     int guess = board[row][col].available.front();
     StepUnit stepunit("write", row, col, guess, board[row][col].available);
     apply_stepunit(stepunit);
+}
+
+
+
+vector<int> Puzzle::choose_guess_cell() {
+    //Current choice scheme:  cell with the least row, then least column, which does not have an entry.
+    int i,j;
+    for (int k=0; k<81; k++) {
+        if (board[k/9][k%9].value == 0) {
+            i = k/9;
+            j = k%9;
+            break;
+        }
+    }
+    vector<int> coords = {i,j};
+    return {i,j};
+}
+
+
+
+
+bool Puzzle::move_to_next_solution() {
+    while (true) {
+        // First, see if the current board is clearly unsolvable; if so, backtrack to the most recent guess.
+        if (check_for_obvious_problems()) {
+            
+            // ...
+            // If we've backtracked all the way to initialization, we should close out the search.
+            // This should be marked in the future.
+        }
+        // At this point in the loop we are ready to move forward and make our next guess!
+        
+    }
 }
 
 

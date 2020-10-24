@@ -40,6 +40,8 @@ public:
     void apply_stepunit(StepUnit & stepunit);
     void unapply_last_stepunit();
     void make_guess(int row, int col);
+    vector<int> choose_guess_cell();
+    bool move_to_next_solution();
 //    void apply_step(list<StepUnit> & step);
 //    void unapply_step(list<StepUnit> & step);
 //    void step_back();
