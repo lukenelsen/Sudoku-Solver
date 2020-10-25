@@ -133,8 +133,6 @@ int main() {
     // We begin by asking the user to enter the puzzle entries.
     
     Puzzle P = get_puzzle_from_user();
-    P.print_log();
-    cout << P.make_board_available_string();
     
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
@@ -149,6 +147,7 @@ int main() {
     
     P.move_to_next_solution();
     cout << P.make_board_entry_string() << endl << endl;
+    P.print_log();
     
     
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
@@ -233,8 +232,15 @@ Puzzle::Puzzle(string board_input) {
 
 
 void Puzzle::print_log() {
+    int step_counter = 0;  // Step 0 will be initialization.
     for (Step step : step_stack) {
-        for (StepUnit s : step.stepunit_stack) { cout << s.log_line; }
+        cout << "Step "+to_string(step_counter)+":  "+step.step_type << endl;
+        int stepunit_counter = 1;
+        for (StepUnit s : step.stepunit_stack) {
+            cout << "    Step "+to_string(step_counter)+"."+to_string(stepunit_counter)+":  "+s.log_line;
+            stepunit_counter++;
+        }
+        step_counter++;
     }
 }
 
@@ -416,8 +422,9 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
     list<int>::iterator it;
     it = (cellptr->available).begin();
     for (int num : stepunit.available_removed) { cellptr->available.remove(num); }
-    step_stack.back().stepunit_stack.push_back(stepunit);
 }
+// Applying a StepUnit does not affect the stepunit_stack---StepUnits are added beforehand.
+// However, undoing a StepUnit will always automatically remove it from stepunit_stack.
 
 
 
