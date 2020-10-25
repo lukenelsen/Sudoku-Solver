@@ -18,16 +18,6 @@ using namespace std;
 
 // Helper Functions
 
-//void test() {
-//    Puzzle P("123456789........................................................................");
-//    P.move_to_next_solution();
-//    P.print_log();
-//    cout << P.make_board_entry_string() << endl << endl;
-//    cout << P.make_board_available_string() << endl << endl;
-//}
-
-
-
 Puzzle get_puzzle_from_user() {
     while (true) {  // Function exits when user enters puzzle and verifies correctness.
         
@@ -126,10 +116,6 @@ Puzzle get_puzzle_from_user() {
 
 int main() {
     
-//    test();
-//    return 0;
-    
-    
     // We begin by asking the user to enter the puzzle entries.
     
     Puzzle P = get_puzzle_from_user();
@@ -144,10 +130,13 @@ int main() {
         return 0;
     }
     
+    if (P.move_to_next_solution()) {
+        cout << endl << "Your puzzle has a solution:\n" << P.make_board_entry_string() << endl << endl;
+    }
+    else {
+        cout << endl << "Your puzzle has no solution." << endl;
+    }
     
-    P.move_to_next_solution();
-    cout << P.make_board_entry_string() << endl << endl;
-    P.print_log();
     
     
     // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
@@ -495,8 +484,11 @@ bool Puzzle::is_board_filled() {
 
 bool Puzzle::bump_last_guess() {
     // Go back to last guess
-    while (step_stack.back().step_type != "Make Guess") { unapply_last_step(); }
-    // Note for future:  we might not have a previous guess to go back to.
+    while (step_stack.back().step_type != "Make Guess") {
+        unapply_last_step();
+        // We might not have a previous guess to go back to.
+        if (step_stack.size() == 0) { return false; }
+    }
     
     // Record the last guess
     int failed_guess = step_stack.back().stepunit_stack.front().entry;
@@ -512,7 +504,7 @@ bool Puzzle::bump_last_guess() {
     incorrect_guess.stepunit_stack.push_back(remove_guess);
     apply_step(incorrect_guess);
     
-    return 0;
+    return true;
 }
 
 
@@ -520,18 +512,16 @@ bool Puzzle::bump_last_guess() {
 bool Puzzle::move_to_next_solution() {
     // If the user-defined puzzle has multiple solutions, then the board might currently be filled.
     // In this case, then we need to backtrack and increment one step before starting.
-    if (is_board_filled()) { bump_last_guess(); }
-    // Note for future:  bump_last_guess might want to go past initialization.
+    if (is_board_filled() && !bump_last_guess()) { return false; }
     
     // Now search for the next solution.
     while (true) {
-        // First, see if the current board is clearly unsolvable; if so, backtrack through the most recent guess.
+        // First, see if the current board is clearly unsolvable.
+        // If so, backtrack through guessed cells with no more available options.
         while (check_for_obvious_problems()) {
-            bump_last_guess();
-            
-            // ...
+            // For the most recent guessed cell, guess the next available option.
             // If we've backtracked all the way to initialization, we should close out the search.
-            // This should be dealt with in the future.
+            if (!bump_last_guess()) { return false; }
         }
         
         // At this point in the loop we are ready to move forward and make our next guess!
