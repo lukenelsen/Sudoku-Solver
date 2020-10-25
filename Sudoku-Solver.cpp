@@ -37,7 +37,9 @@ Puzzle get_puzzle_from_user() {
                 cin >> row_input;
                 if ((row_input == "sample") || (row_input == "sample1")
                     || (row_input == "sample2") || (row_input == "sample3")
-                    || (row_input == "sample4")) { break; }  // Shortcut for testing
+                    || (row_input == "sample4") || (row_input == "sample5")
+                    || (row_input == "sample6")
+                    || (row_input == "dots")) { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
                     cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
@@ -80,6 +82,18 @@ Puzzle get_puzzle_from_user() {
                 board_input = "...26.7.168..7..9.19...45..82.1...4...46.29...5...3.28..93...74.4..5..367.3.18...";
                 break;
             }
+            else if (row_input == "dots") {  // Shortcut for testing
+                board_input = ".................................................................................";
+                break;
+            }
+            else if (row_input == "sample5") {  // Shortcut for testing
+                board_input = "123456789456789123789123456214365897365978241978241635...........................";
+                break;
+            }
+            else if (row_input == "sample6") {  // Shortcut for testing
+                board_input = "123456789456789123789123456......................................................";
+                break;
+            }
         }
         
         // Now ask user to verify puzzle; if not, prompt user to re-enter.
@@ -117,42 +131,43 @@ Puzzle get_puzzle_from_user() {
 int main() {
     
     // We begin by asking the user to enter the puzzle entries.
-    
     Puzzle P = get_puzzle_from_user();
+    cout << "Now analyzing your puzzle..." << endl;
+    if (P.is_board_filled()) {
+        cout << "Your puzzle has already been entirely filled!\nThere is nothing left to do with it." << endl;
+        return 0;
+    }
+    
+    // We automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
+    //   Our menu options will depend on which of these cases we are in.
+    int count = P.count_solutions();
+    if (count==0) {
+        cout << "Your puzzle is impossible; there are no solutions." << endl;
+        // impossible_menu();
+    }
+    else if (count==1) {
+        cout << "Your puzzle has exactly one solution." << endl;
+        // unique_menu();
+    }
+    else {
+        if (count>1000) { cout << "Your puzzle has over one thousand solutions." << endl; }
+        else {cout << "Your puzzle has exactly "+to_string(count)+" solutions." << endl; }
+        // nonunique_menu();
+    }
     
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
     //   unfilled cells have at least one available option).
-    
     if (P.check_for_obvious_problems()) {
         cout << "Uh-oh!  There are some problems with the puzzle board.\n";
         return 0;
     }
     
-    if (P.move_to_next_solution()) {
-        cout << endl << "Your puzzle has a solution:\n" << P.make_board_entry_string() << endl << endl;
-    }
-    else {
-        cout << endl << "Your puzzle has no solution." << endl;
-    }
     
     
     
-    // We will also automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
-    //   Our menu options will depend on which of these cases we are in.
     
-    
-    
-    // If the puzzle has not already broken rules, then prompt the user for what information they want.
-    // (Desired) Options:
-    //      find a solution (if it exists);
-    //      find all solutions (published puzzles are supposed to have unique solutions);
-    //      find next step which can be deduced (if one can given the program's tools);
-    //      write a new value in a cell or remove options from a cell's list of available numbers;
-    //      see a puzzle's log of steps (automated or user-entered);
-    //      step back (undo previous action);
-    //      check if a particular tool applies to the current puzzle state.
 
     
     
@@ -532,6 +547,17 @@ bool Puzzle::move_to_next_solution() {
         // Lastly, check to see if the board is now filled---if so, we've arrived at our next solution!
         if (is_board_filled()) { return true; }
     }
+}
+
+
+
+int Puzzle::count_solutions() {
+    int solution_count = 0;
+    while (move_to_next_solution()) {
+        solution_count++;
+        if (solution_count > 1000) break;
+    }
+    return solution_count;
 }
 
 

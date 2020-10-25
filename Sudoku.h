@@ -60,6 +60,7 @@ public:
     bool is_board_filled();
     void apply_step(Step & step);
     void unapply_last_step();
+    int count_solutions();
 };
 
 
