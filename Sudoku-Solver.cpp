@@ -208,24 +208,34 @@ StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, li
 
 
 
+Step::Step(string step_type) {
+    this->step_type = step_type;
+}
+
+
+
 Puzzle::Puzzle(string board_input) {
+    Step step("Initialization");
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             char entry = board_input[9*i+j];
             if (entry != '.') {
                 board[i][j].write((int)entry-48);
                 StepUnit s("write",i,j,(int)entry-48,{1,2,3,4,5,6,7,8,9});
-                step_stack.push_back(s);
+                step.stepunit_stack.push_back(s);
             }
         }
     }
+    step_stack.push_back(step);
     update_available_options_all();
 }
 
 
 
 void Puzzle::print_log() {
-    for (StepUnit s : step_stack) { cout << s.log_line; }
+    for (Step step : step_stack) {
+        for (StepUnit s : step.stepunit_stack) { cout << s.log_line; }
+    }
 }
 
 
@@ -305,7 +315,7 @@ string Puzzle::make_board_available_string() {
 void Puzzle::update_available_options_all() {
     // For each cell, removes any of its currently available options which are found in the cell's
     //   row, column, or house.  (Does not add to available.)
-    string add_to_log = "Update available values affected by initialization:\n";
+    // Each cell's adjustment is its own StepUnit, which is added to the top Step in the step_stack.
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             Cell & c = board[i][j];
@@ -344,8 +354,7 @@ void Puzzle::update_available_options_all() {
             if (to_remove.size() > 0) {
                 for (int option : to_remove) { c.available.remove(option); }
                 StepUnit s("remove",i,j,0,{to_remove});
-                step_stack.push_back(s);
-                add_to_log += s.log_line;
+                step_stack.back().stepunit_stack.push_back(s);
             }
         }
     }
@@ -407,13 +416,13 @@ void Puzzle::apply_stepunit(StepUnit & stepunit) {
     list<int>::iterator it;
     it = (cellptr->available).begin();
     for (int num : stepunit.available_removed) { cellptr->available.remove(num); }
-    step_stack.push_back(stepunit);
+    step_stack.back().stepunit_stack.push_back(stepunit);
 }
 
 
 
 void Puzzle::unapply_last_stepunit() {
-    StepUnit & stepunit = step_stack.back();
+    StepUnit & stepunit = step_stack.back().stepunit_stack.back();
     Cell * cellptr = &board[stepunit.coords[0]][stepunit.coords[1]];
     if (stepunit.step_type == "write") { cellptr->value = 0; }
     list<int>::iterator it;
@@ -422,6 +431,20 @@ void Puzzle::unapply_last_stepunit() {
         while (it != (cellptr->available).end() && *it<num) { it++; }
         (cellptr->available).insert(it, num);
     }
+    step_stack.back().stepunit_stack.pop_back();
+}
+
+
+
+void Puzzle::apply_step(Step & step) {
+    for (StepUnit stepunit : step.stepunit_stack) { apply_stepunit(stepunit); }
+    step_stack.push_back(step);
+}
+
+
+
+void Puzzle::unapply_last_step() {
+    while (step_stack.back().stepunit_stack.size() > 0) { unapply_last_stepunit(); }
     step_stack.pop_back();
 }
 
@@ -430,7 +453,9 @@ void Puzzle::unapply_last_stepunit() {
 void Puzzle::make_guess(int row, int col) {
     int guess = board[row][col].available.front();
     StepUnit stepunit("write", row, col, guess, board[row][col].available);
-    apply_stepunit(stepunit);
+    Step step("Make Guess");
+    step.stepunit_stack.push_back(stepunit);
+    apply_step(step);
 }
 
 
@@ -460,18 +485,20 @@ bool Puzzle::is_board_filled() {
 
 bool Puzzle::bump_last_guess() {
     // Go back to last guess
-    while (step_stack.back().step_type == "remove") { unapply_last_stepunit(); }
+    while (step_stack.back().step_type != "Make Guess") { unapply_last_step(); }
     // Note for future:  we might not have a previous guess to go back to.
     
     // Record the last guess
-    int failed_guess = step_stack.back().entry;
-    int row = step_stack.back().coords[0];
-    int col = step_stack.back().coords[1];
+    int failed_guess = step_stack.back().stepunit_stack.front().entry;
+    int row = step_stack.back().stepunit_stack.front().coords[0];
+    int col = step_stack.back().stepunit_stack.front().coords[1];
     
     // Undo the last guess and also eliminate that value from available options
-    unapply_last_stepunit();
-    StepUnit remove_failed_guess("remove", row, col, 0, {failed_guess});
-    apply_stepunit(remove_failed_guess);
+    unapply_last_step();
+    Step incorrect_guess("Incorrect Guess");
+    StepUnit remove_guess("remove", row, col, 0, {failed_guess});
+    incorrect_guess.stepunit_stack.push_back(remove_guess);
+    apply_step(incorrect_guess);
     
     return 0;
 }

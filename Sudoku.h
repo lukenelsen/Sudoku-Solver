@@ -31,6 +31,16 @@ public:
 
 
 
+class Step {
+public:
+    string step_type;  // Options include "Initialize Board", "Make Guess", etc.
+    vector<StepUnit> stepunit_stack;
+    Step(string step_type);
+    string log_line;
+};
+
+
+
 class Puzzle {
 public:
     Cell board [9][9];
@@ -40,7 +50,7 @@ public:
     string make_board_available_string();
     void update_available_options_all();
     bool check_for_obvious_problems();
-    vector<StepUnit> step_stack;
+    vector<Step> step_stack;
     void apply_stepunit(StepUnit & stepunit);
     void unapply_last_stepunit();
     void make_guess(int row, int col);
@@ -48,12 +58,8 @@ public:
     bool bump_last_guess();
     bool move_to_next_solution();
     bool is_board_filled();
-//    void apply_step(list<StepUnit> & step);
-//    void unapply_step(list<StepUnit> & step);
-//    void step_back();
-//    void step_forward();
-//    void solution_back();
-//    void solution_forward();
+    void apply_step(Step & step);
+    void unapply_last_step();
 };
 
 
