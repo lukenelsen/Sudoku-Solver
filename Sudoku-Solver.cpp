@@ -225,6 +225,7 @@ Puzzle::Puzzle(string board_input) {
             }
         }
     }
+    step.log_line = "User entered the following puzzle:\n"+make_board_entry_string();
     step_stack.push_back(step);
     update_available_options_all();
 }
@@ -235,6 +236,7 @@ void Puzzle::print_log() {
     int step_counter = 0;  // Step 0 will be initialization.
     for (Step step : step_stack) {
         cout << "Step "+to_string(step_counter)+":  "+step.step_type << endl;
+        cout << "    "+step.log_line << endl;
         int stepunit_counter = 1;
         for (StepUnit s : step.stepunit_stack) {
             cout << "    Step "+to_string(step_counter)+"."+to_string(stepunit_counter)+":  "+s.log_line;
@@ -461,6 +463,7 @@ void Puzzle::make_guess(int row, int col) {
     int guess = board[row][col].available.front();
     StepUnit stepunit("write", row, col, guess, board[row][col].available);
     Step step("Make Guess");
+    step.log_line = "Try writing "+to_string(guess)+" to r"+to_string(row+1)+"c"+to_string(col+1)+".";
     step.stepunit_stack.push_back(stepunit);
     apply_step(step);
 }
@@ -503,6 +506,8 @@ bool Puzzle::bump_last_guess() {
     // Undo the last guess and also eliminate that value from available options
     unapply_last_step();
     Step incorrect_guess("Incorrect Guess");
+    incorrect_guess.log_line = "Writing "+to_string(failed_guess)+" to r"+to_string(row+1)+"c"+to_string(col+1)+
+                                " resulted in a failed detour.";
     StepUnit remove_guess("remove", row, col, 0, {failed_guess});
     incorrect_guess.stepunit_stack.push_back(remove_guess);
     apply_step(incorrect_guess);
