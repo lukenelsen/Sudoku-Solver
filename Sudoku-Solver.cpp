@@ -155,6 +155,7 @@ int main() {
         // nonunique_menu();
     }
     
+    cout << P.step_stack.size() << endl;
     cout << P.make_board_entry_string() << endl;
     P.print_log();
     
@@ -163,6 +164,7 @@ int main() {
     //   unfilled cells have at least one available option).
     if (P.check_for_obvious_problems()) {
         cout << "Uh-oh!  There are some problems with the puzzle board.\n";
+        P.print_obvious_problems();
         return 0;
     }
     
@@ -385,24 +387,19 @@ bool Puzzle::check_for_obvious_problems() {
         for (int j=0; j<9; j++) {
             Cell & c = board[i][j];
             if ((c.value == 0) && (c.available.size() == 0)) {
-                add_to_log += "Problem found (No Options): The cell in R"+to_string(i+1)+"C"+to_string(j+1);
-                add_to_log += " is unfilled but has no available options.\n";
+                return true;
             }
             else if (c.value > 0) {
                 // Check row
                 for (int k=j+1; k<9; k++) {
                     if (board[i][k].value == c.value) {
-                        add_to_log += "Problem found (Row Repeat):  The cells in R"+to_string(i+1);
-                        add_to_log += "C"+to_string(j+1)+" and R"+to_string(i+1)+"C"+to_string(k+1);
-                        add_to_log += " both have a "+to_string(c.value)+".\n";
+                        return true;
                     }
                 }
                 // Check column
                 for (int k=i+1; k<9; k++) {
                     if (board[k][j].value == c.value) {
-                        add_to_log += "Problem found (Column Repeat):  The cells in R"+to_string(i+1);
-                        add_to_log += "C"+to_string(j+1)+" and R"+to_string(k+1)+"C"+to_string(j+1);
-                        add_to_log += " both have a "+to_string(c.value)+".\n";
+                        return true;
                     }
                 }
                 // Check house
@@ -413,16 +410,61 @@ bool Puzzle::check_for_obvious_problems() {
                         // ahead of the [3*(i/3)+k][3*(j/3)+l] cell.
                         if ( (k==i) || (l==j) || ( 9*i+j >= 9*(3*(i/3)+k)+(3*(j/3)+l) ) ) { continue; }
                         if (board[3*(i/3)+k][3*(j/3)+l].value == c.value) {
-                            add_to_log += "Problem found (House Repeat):  The cells in R"+to_string(i+1);
-                            add_to_log += "C"+to_string(j+1)+" and R"+to_string(3*(i/3)+k+1)+"C"+to_string(3*(j/3)+l+1);
-                            add_to_log += " both have a "+to_string(c.value)+".\n";
+                            return true;
                         }
                     }
                 }
             }
         }
     }
-    return (add_to_log == "" ? false : true);
+    return false;
+}
+
+
+
+void Puzzle::print_obvious_problems() {
+    string add_to_log = "";
+    for (int i=0; i<9; i++) {
+        for (int j=0; j<9; j++) {
+            Cell & c = board[i][j];
+            if ((c.value == 0) && (c.available.size() == 0)) {
+                cout << "Problem found (No Options): The cell in r"+to_string(i+1)+"c"+to_string(j+1);
+                cout << " is unfilled but has no available options.\n";
+            }
+            else if (c.value > 0) {
+                // Check row
+                for (int k=j+1; k<9; k++) {
+                    if (board[i][k].value == c.value) {
+                        cout << "Problem found (Row Repeat):  The cells in r"+to_string(i+1);
+                        cout << "c"+to_string(j+1)+" and r"+to_string(i+1)+"c"+to_string(k+1);
+                        cout << " both have a "+to_string(c.value)+".\n";
+                    }
+                }
+                // Check column
+                for (int k=i+1; k<9; k++) {
+                    if (board[k][j].value == c.value) {
+                        cout << "Problem found (Column Repeat):  The cells in r"+to_string(i+1);
+                        cout << "c"+to_string(j+1)+" and r"+to_string(k+1)+"c"+to_string(j+1);
+                        cout << " both have a "+to_string(c.value)+".\n";
+                    }
+                }
+                // Check house
+                for (int k=0; k<3; k++) {
+                    for (int l=0; l<3; l++) {
+                        // The following check prevents comparing the same row, column, or previously inspected cell.
+                        // The inequality 9*i+j >= 9*(3*(i/3)+k)+(3*(j/3)+l) means that the [i][j] cell is
+                        // ahead of the [3*(i/3)+k][3*(j/3)+l] cell.
+                        if ( (k==i) || (l==j) || ( 9*i+j >= 9*(3*(i/3)+k)+(3*(j/3)+l) ) ) { continue; }
+                        if (board[3*(i/3)+k][3*(j/3)+l].value == c.value) {
+                            cout << "Problem found (House Repeat):  The cells in r"+to_string(i+1);
+                            cout << "c"+to_string(j+1)+" and r"+to_string(3*(i/3)+k+1)+"c"+to_string(3*(j/3)+l+1);
+                            cout << " both have a "+to_string(c.value)+".\n";
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
