@@ -182,13 +182,6 @@ int main() {
 
 // Member Functions
 
-void Cell::write(int entry) {
-    this->value = entry;
-    this->available = {};
-}
-
-
-
 StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, list<int> available_removed) {
     if (step_type != "write" && step_type != "remove") {cout << "WARNING:  Invalid step type for StepUnit.";}
     this->step_type = step_type;
@@ -220,14 +213,13 @@ Puzzle::Puzzle(string board_input) {
         for (int j=0; j<9; j++) {
             char entry = board_input[9*i+j];
             if (entry != '.') {
-                board[i][j].write((int)entry-48);
                 StepUnit s("write",i,j,(int)entry-48,{1,2,3,4,5,6,7,8,9});
                 step.stepunit_stack.push_back(s);
             }
         }
     }
     step.log_line = "User entered the following puzzle:\n"+make_board_entry_string();
-    step_stack.push_back(step);
+    apply_step(step);
     update_available_options_all();
     init_step = step_stack.back();
 }
@@ -376,9 +368,9 @@ void Puzzle::update_available_options_all() {
                 }
             }
             if (to_remove.size() > 0) {
-                for (int option : to_remove) { c.available.remove(option); }
                 StepUnit s("remove",i,j,0,{to_remove});
                 step_stack.back().stepunit_stack.push_back(s);
+                apply_stepunit(s);
             }
         }
     }
