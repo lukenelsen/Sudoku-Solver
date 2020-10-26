@@ -155,10 +155,6 @@ int main() {
         // nonunique_menu();
     }
     
-    cout << P.step_stack.size() << endl;
-    cout << P.make_board_entry_string() << endl;
-    P.print_log();
-    
     // The first thing we do after getting the puzzle is check that the entries do not already violate
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
     //   unfilled cells have at least one available option).
@@ -236,7 +232,7 @@ Puzzle::Puzzle(string board_input) {
     step.log_line = "User entered the following puzzle:\n"+make_board_entry_string();
     step_stack.push_back(step);
     update_available_options_all();
-    init_step = step;
+    init_step = step_stack.back();
 }
 
 
@@ -599,8 +595,8 @@ bool Puzzle::move_to_next_solution() {
 
 
 void Puzzle::reset_to_initialized() {
-    while (step_stack.size() > 0) { step_stack.pop_back(); }
-    step_stack.push_back(init_step);
+    while (step_stack.size() > 1) { unapply_last_step(); }  // If we are steps into the puzzle
+    if (step_stack.size() < 1) { apply_step(init_step); }  // If the initial step was undone
 }
 
 
