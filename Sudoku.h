@@ -48,6 +48,7 @@ public:
     vector<Step> step_stack;
     Puzzle(string board_input);
     void print_log();
+    void print_log_terse();
     string make_board_entry_string();
     string make_board_available_string();
     void update_available_options_all();

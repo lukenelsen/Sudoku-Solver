@@ -168,6 +168,8 @@ int main() {
         return 0;
     }
     
+    P.move_to_next_solution();
+    P.print_log_terse();
     
     return 0;
 }
@@ -248,6 +250,17 @@ void Puzzle::print_log() {
             stepunit_counter++;
         }
         step_counter++;
+    }
+}
+
+
+
+void Puzzle::print_log_terse() {
+    int step_counter = 1;
+    vector<Step>::iterator it = step_stack.begin();
+    it++;
+    while (it != step_stack.end()) {
+        cout << "Step "+to_string(step_counter++)+": "+(*it).step_type+".  "+(*it++).log_line << endl;
     }
 }
 
