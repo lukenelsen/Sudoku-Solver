@@ -38,7 +38,7 @@ Puzzle get_puzzle_from_user() {
                 if ((row_input == "sample") || (row_input == "sample1")
                     || (row_input == "sample2") || (row_input == "sample3")
                     || (row_input == "sample4") || (row_input == "sample5")
-                    || (row_input == "sample6")
+                    || (row_input == "sample6") || (row_input == "sample7")
                     || (row_input == "dots")) { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
@@ -92,6 +92,10 @@ Puzzle get_puzzle_from_user() {
             }
             else if (row_input == "sample6") {  // Shortcut for testing
                 board_input = "123456789456789123789123456......................................................";
+                break;
+            }
+            else if (row_input == "sample7") {  // Shortcut for testing
+                board_input = ".743...25.3..476....1....3.....6....4.6.9.3.2....5.....5.......1.2.3..8.36...521.";
                 break;
             }
         }
@@ -163,12 +167,6 @@ int main() {
         P.print_obvious_problems();
         return 0;
     }
-    
-    
-    
-    
-    
-
     
     
     return 0;
@@ -520,11 +518,12 @@ void Puzzle::make_guess(int row, int col) {
 vector<int> Puzzle::choose_guess_cell() {
     //Current choice scheme:  cell with the least row, then least column, which does not have an entry.
     int i,j;
+    int min_available = 10;
     for (int k=0; k<81; k++) {
-        if (board[k/9][k%9].value == 0) {
+        if (board[k/9][k%9].value == 0 && board[k/9][k%9].available.size() < min_available) {
             i = k/9;
             j = k%9;
-            break;
+            min_available = board[i][j].available.size();
         }
     }
     vector<int> coords = {i,j};
