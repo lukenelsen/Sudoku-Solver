@@ -52,6 +52,7 @@ public:
     string make_board_entry_string();
     string make_board_available_string();
     void update_available_options_all();
+    void update_available_options_after_written(int row, int col, int entry);
     bool check_for_obvious_problems();
     void print_obvious_problems();
     bool check_for_none_available();

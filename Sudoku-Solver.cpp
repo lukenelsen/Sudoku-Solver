@@ -336,6 +336,7 @@ string Puzzle::make_board_available_string() {
 
 
 void Puzzle::update_available_options_all() {
+    // For use after user initialization.
     // For each cell, removes any of its currently available options which are found in the cell's
     //   row, column, or house.  (Does not add to available.)
     // Each cell's adjustment is its own StepUnit, which is added to the top Step in the step_stack.
@@ -378,6 +379,59 @@ void Puzzle::update_available_options_all() {
                 for (int option : to_remove) { c.available.remove(option); }
                 StepUnit s("remove",i,j,0,{to_remove});
                 step_stack.back().stepunit_stack.push_back(s);
+            }
+        }
+    }
+}
+
+
+
+void Puzzle::update_available_options_after_written(int row, int col, int entry) {
+    // For use in the program's search after the cell at board[row][col] has been filled with value entry.
+    // Removes entry from available for each cell in the row, column, or house of row/col.
+    // Each cell's adjustment is its own StepUnit, which is added to the top Step in the step_stack.
+    // Adjust row
+    for (int j=0; j<9; j++) {
+        if (j==col) continue;
+        Cell & c = board[row][j];
+        list<int>::iterator it = c.available.begin();
+        while (it != c.available.end()) {
+            if (*it++ == entry) {
+                StepUnit stepunit("remove", row, j, 0, {entry});
+                step_stack.back().stepunit_stack.push_back(stepunit);
+                apply_stepunit(stepunit);
+                break;
+            }
+        }
+    }
+    // Adjust column
+    for (int i=0; i<9; i++) {
+        if (i==row) continue;
+        Cell & c = board[i][col];
+        list<int>::iterator it = c.available.begin();
+        while (it != c.available.end()) {
+            if (*it++ == entry) {
+                StepUnit stepunit("remove", i, col, 0, {entry});
+                step_stack.back().stepunit_stack.push_back(stepunit);
+                apply_stepunit(stepunit);
+                break;
+            }
+        }
+    }
+    // Adjust house
+    for (int k=0; k<3; k++) {
+        if (k==row%3) continue;
+        for (int l=0; l<3; l++) {
+            if (l==col%3) continue;
+            Cell & c = board[3*(row/3)+k][3*(col/3)+l];
+            list<int>::iterator it = c.available.begin();
+            while (it != c.available.end()) {
+                if (*it++ == entry) {
+                    StepUnit stepunit("remove", 3*(row/3)+k, 3*(col/3)+l, 0, {entry});
+                    step_stack.back().stepunit_stack.push_back(stepunit);
+                    apply_stepunit(stepunit);
+                    break;
+                }
             }
         }
     }
@@ -603,7 +657,7 @@ bool Puzzle::move_to_next_solution() {
         // At this point in the loop we are ready to move forward and make our next guess!
         vector<int> coords = choose_guess_cell();
         make_guess(coords[0],coords[1]);
-        update_available_options_all();
+        update_available_options_after_written(coords[0], coords[1], step_stack.back().stepunit_stack.back().entry);
         
         // Lastly, check to see if the board is now filled---if so, we've arrived at our next solution!
         if (is_board_filled()) { return true; }
