@@ -54,6 +54,7 @@ public:
     void update_available_options_all();
     bool check_for_obvious_problems();
     void print_obvious_problems();
+    bool check_for_none_available();
     void apply_stepunit(StepUnit & stepunit);
     void unapply_last_stepunit();
     void make_guess(int row, int col);

@@ -168,9 +168,6 @@ int main() {
         return 0;
     }
     
-    P.move_to_next_solution();
-    P.print_log_terse();
-    
     return 0;
 }
 
@@ -389,10 +386,10 @@ void Puzzle::update_available_options_all() {
 
 
 bool Puzzle::check_for_obvious_problems() {
-    string add_to_log = "";
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             Cell & c = board[i][j];
+            // Check if cell is unfilled but has none available
             if ((c.value == 0) && (c.available.size() == 0)) {
                 return true;
             }
@@ -434,6 +431,7 @@ void Puzzle::print_obvious_problems() {
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             Cell & c = board[i][j];
+            // Check if cell is unfilled but has none available
             if ((c.value == 0) && (c.available.size() == 0)) {
                 cout << "Problem found (No Options): The cell in r"+to_string(i+1)+"c"+to_string(j+1);
                 cout << " is unfilled but has no available options.\n";
@@ -472,6 +470,14 @@ void Puzzle::print_obvious_problems() {
             }
         }
     }
+}
+
+
+
+bool Puzzle::check_for_none_available() {
+    // Check for any unfilled cells with no options available
+    for (int k=0; k<81; k++) if (board[k/9][k%9].value+board[k/9][k%9].available.size() == 0) return true;
+    return false;
 }
 
 
@@ -588,7 +594,7 @@ bool Puzzle::move_to_next_solution() {
     while (true) {
         // First, see if the current board is clearly unsolvable.
         // If so, backtrack through guessed cells with no more available options.
-        while (check_for_obvious_problems()) {
+        while (check_for_none_available()) {
             // For the most recent guessed cell, guess the next available option.
             // If we've backtracked all the way to initialization, we should close out the search.
             if (!bump_last_guess()) { return false; }
@@ -614,6 +620,11 @@ void Puzzle::reset_to_initialized() {
 
 
 int Puzzle::count_solutions() {
+    // If we see any immediate issues, do not bother beginning a search
+    // Note:  check_for_none_available() is used in move_to_next_solution(), but
+    //        check_for_obvious_problems() is meant for immediately after initialization.
+    if (check_for_obvious_problems()) { return 0; }
+    
     int solution_count = 0;
     while (move_to_next_solution()) {
         solution_count++;
