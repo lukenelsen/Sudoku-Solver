@@ -44,13 +44,14 @@ public:
 class Puzzle {
 public:
     Cell board [9][9];
+    Step init_step = Step("Initialization");
+    vector<Step> step_stack;
     Puzzle(string board_input);
     void print_log();
     string make_board_entry_string();
     string make_board_available_string();
     void update_available_options_all();
     bool check_for_obvious_problems();
-    vector<Step> step_stack;
     void apply_stepunit(StepUnit & stepunit);
     void unapply_last_stepunit();
     void make_guess(int row, int col);
@@ -60,6 +61,7 @@ public:
     bool is_board_filled();
     void apply_step(Step & step);
     void unapply_last_step();
+    void reset_to_initialized();
     int count_solutions();
 };
 

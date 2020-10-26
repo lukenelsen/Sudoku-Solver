@@ -155,6 +155,8 @@ int main() {
         // nonunique_menu();
     }
     
+    cout << P.make_board_entry_string() << endl;
+    P.print_log();
     
     // The first thing we do after getting the puzzle is check that the entries do not already violate
     //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
@@ -200,10 +202,10 @@ StepUnit::StepUnit(string step_type, int row_coord, int col_coord, int entry, li
     this->entry = entry;  // should be 0 if step_type is "remove"
     this->available_removed = available_removed; // should be all of Cell.available if step_type is "write"
     if (step_type == "write") {
-        this->log_line = "   Write value "+to_string(entry)+" to r"+to_string(row_coord+1)+"c"+to_string(col_coord+1);
+        this->log_line = " Write value "+to_string(entry)+" to r"+to_string(row_coord+1)+"c"+to_string(col_coord+1);
     }
     else if (step_type == "remove") {
-        this->log_line = "   Remove possible value(s) from r"+to_string(row_coord+1)+"c"+to_string(col_coord+1)+": ";
+        this->log_line = " Remove possible value(s) from r"+to_string(row_coord+1)+"c"+to_string(col_coord+1)+": ";
         for (int option : available_removed) { this->log_line += " "+to_string(option); }
     }
     this->log_line += ".\n";
@@ -232,6 +234,7 @@ Puzzle::Puzzle(string board_input) {
     step.log_line = "User entered the following puzzle:\n"+make_board_entry_string();
     step_stack.push_back(step);
     update_available_options_all();
+    init_step = step;
 }
 
 
@@ -243,7 +246,9 @@ void Puzzle::print_log() {
         cout << "    "+step.log_line << endl;
         int stepunit_counter = 1;
         for (StepUnit s : step.stepunit_stack) {
-            cout << "    Step "+to_string(step_counter)+"."+to_string(stepunit_counter)+":  "+s.log_line;
+            cout << "    Step "+to_string(step_counter)+"."+to_string(stepunit_counter)+":   ";
+            cout << (stepunit_counter<10 ? " " : "");
+            cout << s.log_line;
             stepunit_counter++;
         }
         step_counter++;
@@ -551,12 +556,20 @@ bool Puzzle::move_to_next_solution() {
 
 
 
+void Puzzle::reset_to_initialized() {
+    while (step_stack.size() > 0) { step_stack.pop_back(); }
+    step_stack.push_back(init_step);
+}
+
+
+
 int Puzzle::count_solutions() {
     int solution_count = 0;
     while (move_to_next_solution()) {
         solution_count++;
         if (solution_count > 1000) break;
     }
+    reset_to_initialized();
     return solution_count;
 }
 
