@@ -18,6 +18,218 @@ using namespace std;
 
 // Helper Functions
 
+void menu_learn() {
+    return;
+}
+
+
+
+void puzzle_expanded_view(Puzzle & P) {
+    cout << P.make_board_available_string() << endl
+         << "Enter any character when you are ready to return to the previous menu. ";
+    string user_input;
+    cin >> user_input;
+    cout << endl << endl;
+    return;
+}
+
+
+
+void learn_no_solutions(Puzzle & P) {
+    return;
+}
+
+
+
+void view_log(Puzzle & P) {
+    return;
+}
+
+
+
+void enter_step(Puzzle & P) {
+    return;
+}
+
+
+
+void show_unique_solution(Puzzle P) {  // Copy the puzzle to not change current state for the user
+    P.move_to_next_solution();
+    cout << P.make_board_entry_string() << endl
+         << "Enter any character when you are ready to return to the previous menu. ";
+    string user_input;
+    cin >> user_input;
+    cout << endl << endl;
+    return;
+}
+
+
+
+void show_unique_next_step(Puzzle & P) {
+    return;
+}
+
+
+
+void undo_last_step(Puzzle & P) {
+    return;
+}
+
+
+
+void reset_puzzle(Puzzle & P) {
+    return;
+}
+
+
+
+void show_nonunique_next_step(Puzzle & P) {
+    return;
+}
+
+
+
+void show_nonunique_prev_solution(Puzzle & P) {
+    return;
+}
+
+
+
+void find_spec_nonunique_solution(Puzzle & P) {
+    return;
+}
+
+
+
+void menu_puzzle_impossible(Puzzle & P) {
+    while (true) {
+        cout << endl << "IMPOSSIBLE PUZZLE MENU" << endl << endl << P.make_board_entry_string()
+        << endl << "The puzzle you entered (shown above) has no solutions." << endl
+        << "What would you like to do?" << endl
+        << "(1) See an expanded view of the puzzle board" << endl
+        << "( ) Learn why there are no solutions [not yet available]" << endl
+        << "[0] Leave this puzzle and return to the Main Menu" << endl << endl;
+        while (true) {
+            cout << "Enter your choice: ";
+            string menu_option;
+            cin >> menu_option;
+            cout << endl;
+            if (menu_option.size()>1) {
+                cout << "Oops!  Your response has more than one character.\n"
+                "Simply type one of \"1\", \"2\", or \"0\" and hit Enter." << endl << endl;
+                continue;
+            }
+            char const choice = menu_option[0];
+            if (choice=='1') { puzzle_expanded_view(P); break; }
+            if (choice=='2') { learn_no_solutions(P); break; }
+            else if (choice=='0') { return; }
+            else {
+                cout << "Oops!  Your entry was not a recognized option.\n"
+                "Simply type one of \"1\", \"2\", or \"0\" and hit Enter." << endl << endl;
+                continue;
+            }
+        }
+    }
+}
+
+
+
+void menu_puzzle_unique(Puzzle & P) {
+    while (true) {
+        cout << endl << "PUZZLE MENU (UNIQUE SOLUTION)" << endl << endl << P.make_board_entry_string()
+        << endl << "The current state of your puzzle is shown above." << endl
+        << "What would you like to do?" << endl
+        << "(1) See an expanded view of the puzzle board" << endl
+        << "( ) View the log of steps made so far [not yet available]" << endl
+        << "( ) Enter my own step toward solving the puzzle [not yet available]" << endl
+        << "(4) Show me the solution" << endl
+        << "( ) Show me a next step toward the solution [not yet available]" << endl
+        << "( ) Undo the last step [not yet available]" << endl
+        << "( ) Reset the puzzle to its initial entries [not yet available]" << endl
+        << "[0] Leave this puzzle and return to the Main Menu" << endl << endl;
+        while (true) {
+            cout << "Enter your choice: ";
+            string menu_option;
+            cin >> menu_option;
+            cout << endl;
+            if (menu_option.size()>1) {
+                cout << "Oops!  Your response has more than one character.\n"
+                "Simply type an integer between 0 and 7 and hit Enter." << endl << endl;
+                continue;
+            }
+            char const choice = menu_option[0];
+            if (choice=='1') { puzzle_expanded_view(P); break; }
+            if (choice=='2') { view_log(P); break; }
+            if (choice=='3') { enter_step(P); break; }
+            if (choice=='4') { show_unique_solution(P); break; }
+            if (choice=='5') { show_unique_next_step(P); break; }
+            if (choice=='6') { undo_last_step(P); break; }
+            if (choice=='7') { reset_puzzle(P); break; }
+            else if (choice=='0') { return; }
+            else {
+                cout << "Oops!  Your entry was not a recognized option.\n"
+                "Simply type an integer between 0 and 7 and hit Enter." << endl << endl;
+                continue;
+            }
+        }
+    }
+}
+
+
+
+void menu_puzzle_nonunique(Puzzle & P, int num_original_solutions) {
+    string orig = (num_original_solutions>1000 ? "over one thousand" : to_string(num_original_solutions));
+    while (true) {
+        Puzzle P_copy = P;
+        int current_sols = P_copy.count_solutions();
+        string current = (current_sols>1000 ? "over one thousand" : to_string(current_sols));
+        cout << endl << "PUZZLE MENU (NON-UNIQUE SOLUTIONS)" << endl << endl << P.make_board_entry_string()
+             << endl << "The original puzzle you entered has "+orig+" solutions.";
+        if (P.is_board_filled()) { cout << "  One is shown above." << endl; }
+        else { cout << "\nThe current state of your puzzle is shown above ("+current+" possible solutions)." << endl; }
+        cout << "What would you like to do?" << endl
+        << "(1) See an expanded view of the puzzle board" << endl
+        << "( ) View the log of steps made so far [not yet available]" << endl
+        << "( ) Enter my own step toward solving the puzzle [not yet available]" << endl
+        << "(4) Show me the next solution from the current state" << endl
+        << "( ) Show me a step toward the next solution [not yet available]" << endl
+        << "( ) Undo the last step [not yet available]" << endl
+        << "( ) Show me the previous solution from the current state [not yet available]" << endl
+        << "( ) Reset the puzzle to its initial entries [not yet available]" << endl
+        << "( ) Show me a specific solution to the puzzle [not yet available]" << endl
+        << "[0] Leave this puzzle and return to the Main Menu" << endl << endl;
+        while (true) {
+            cout << "Enter your choice: ";
+            string menu_option;
+            cin >> menu_option;
+            cout << endl;
+            if (menu_option.size()>1) {
+                cout << "Oops!  Your response has more than one character.\n"
+                "Simply type an integer between 0 and 9 and hit Enter." << endl << endl;
+                continue;
+            }
+            char const choice = menu_option[0];
+            if (choice=='1') { puzzle_expanded_view(P); break; }
+            if (choice=='2') { view_log(P); break; }
+            if (choice=='3') { enter_step(P); break; }
+            if (choice=='4') { P.move_to_next_solution(); break; }
+            if (choice=='5') { show_nonunique_next_step(P); break; }
+            if (choice=='6') { undo_last_step(P); break; }
+            if (choice=='7') { show_nonunique_prev_solution(P); break; }
+            if (choice=='8') { reset_puzzle(P); break; }
+            if (choice=='9') { find_spec_nonunique_solution(P); break; }
+            else if (choice=='0') { return; }
+            else {
+                cout << "Oops!  Your entry was not a recognized option.\n"
+                "Simply type an integer between 0 and 9 and hit Enter." << endl << endl;
+                continue;
+            }
+        }
+    }
+}
+
+
+
 Puzzle get_puzzle_from_user() {
     while (true) {  // Function exits when user enters puzzle and verifies correctness.
         
@@ -118,13 +330,122 @@ Puzzle get_puzzle_from_user() {
             }
             else {
                 cout << "Oops!  The program could not interpret your answer's format.\n"
-                        "  An answer beginning with 'y' or 'Y' is interpreted as yes;\n"
-                        "  an answer beginning with 'n' or 'N' is interpreted as no.\n"
-                        "  Is the puzzle displayed above correct?" << endl;
+                "  An answer beginning with 'y' or 'Y' is interpreted as yes;\n"
+                "  an answer beginning with 'n' or 'N' is interpreted as no.\n"
+                "  Is the puzzle displayed above correct?" << endl;
             }
         }
     }
 }
+
+
+
+void menu_enter() {
+    Puzzle P(".................................................................................");
+    while (true) {
+        bool enter_another = false;
+        // We begin by asking the user to enter the puzzle entries.
+        P = get_puzzle_from_user();
+        if (P.is_board_filled()) {
+            cout << "Your puzzle has already been entirely filled!\nThere is nothing left to do with it.\n\n"
+            << "What would you like to do?\n(1) Enter another puzzle\n[0] Return to the Main Menu\n\n";
+            while (true) {
+                cout << "Enter your choice: ";
+                string menu_option;
+                cin >> menu_option;
+                cout << endl;
+                if (menu_option.size()>1) {
+                    cout << "Oops!  Your response has more than one character.\n"
+                    "Simply type one of \"1\" or \"0\" and hit Enter." << endl << endl;
+                    continue;
+                }
+                char const choice = menu_option[0];
+                if (choice=='1') { enter_another = true; break; }
+                else if (choice=='0') { return; }
+                else {
+                    cout << "Oops!  Your entry was not a recognized option.\n"
+                    "Simply type one of \"1\" or \"0\" and hit Enter." << endl << endl;
+                    continue;
+                }
+            }
+        }
+        if (enter_another) { continue; }
+        break;
+    }
+    
+    // We automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
+    //   Our menu options will depend on which of these cases we are in.
+    int count = P.count_solutions();
+    if (count == 0) { menu_puzzle_impossible(P); }
+    else if (count == 1) { menu_puzzle_unique(P); }
+    else if (count > 1) { menu_puzzle_nonunique(P, count); }
+    return;
+}
+
+
+
+void menu_random() {
+    return;
+}
+
+
+
+int menu_main() {
+    string heading = "\n"
+    "*--------*--------*-------*-------*--------*--------*\n"
+    "|                                                   |\n"
+    "|    SSS    U   U   DDD      OOO    K   K   U   U   |\n"
+    "|   S   S   U   U   D  D    O   O   K  K    U   U   |\n"
+    "|    S      U   U   D   D   O   O   K K     U   U   |\n"
+    "|     S     U   U   D   D   O   O   KK      U   U   |\n"
+    "|      S    U   U   D   D   O   O   K K     U   U   |\n"
+    "|   S   S   U   U   D  D    O   O   K  K    U   U   |\n"
+    "|    SSS     UUU    DDD      OOO    K   K    UUU    |\n"
+    "*                                                   *\n"
+    "|                                                   |\n"
+    "|    SSS     OOO    L       V   V   EEEEE   RRRR    |\n"
+    "|   S   S   O   O   L       V   V   E       R   R   |\n"
+    "|    S      O   O   L       V   V   E       R   R   |\n"
+    "|     S     O   O   L       V   V   EEEE    RRRR    |\n"
+    "|      S    O   O   L       V   V   E       R   R   |\n"
+    "|   S   S   O   O   L        V V    E       R   R   |\n"
+    "|    SSS     OOO    LLLLL     V     EEEEE   R   R   |\n"
+    "|                                                   |\n"
+    "*--------*--------*-------*-------*--------*--------*\n"
+    "                   By: Luke Nelsen \n";
+    cout << heading;
+    
+    string main_menu_prompt = "MAIN MENU\n\n"
+    "What would you like to do?\n"
+    "( ) Learn about Sudoku puzzles [not yet available]\n"
+    "(2) Enter my own Sudoku puzzle\n"
+    "( ) Use a Sudoku puzzle generator [not yet available]\n"
+    "[0] Exit the program\n\n";
+    cout << main_menu_prompt;
+    
+    while (true) {
+        cout << "Enter your choice: ";
+        string menu_option;
+        cin >> menu_option;
+        cout << endl;
+        if (menu_option.size()>1) {
+            cout << "Oops!  Your response has more than one character.\n"
+            "Simply type one of \"1\", \"2\", \"3\", or \"0\" and hit Enter." << endl << endl;
+            continue;
+        }
+        char const choice = menu_option[0];
+        if (choice=='1') { return 1; }
+        else if (choice=='2') { return 2; }
+        else if (choice=='3') { return 3; }
+        else if (choice=='0') { return 0; }
+        else {
+            cout << "Oops!  Your entry was not a recognized option.\n"
+            "Simply type one of \"1\", \"2\", \"3\", or \"0\" and hit Enter." << endl << endl;
+            continue;
+        }
+    }
+}
+
 
 
 
@@ -134,38 +455,14 @@ Puzzle get_puzzle_from_user() {
 
 int main() {
     
-    // We begin by asking the user to enter the puzzle entries.
-    Puzzle P = get_puzzle_from_user();
-    cout << "Now analyzing your puzzle..." << endl;
-    if (P.is_board_filled()) {
-        cout << "Your puzzle has already been entirely filled!\nThere is nothing left to do with it." << endl;
-        return 0;
-    }
+    int main_choice = menu_main();
     
-    // We automatically analyze the board to determine if it has 0, 1, or 2+ solutions.
-    //   Our menu options will depend on which of these cases we are in.
-    int count = P.count_solutions();
-    if (count==0) {
-        cout << "Your puzzle is impossible; there are no solutions." << endl;
-        // impossible_menu();
-    }
-    else if (count==1) {
-        cout << "Your puzzle has exactly one solution." << endl;
-        // unique_menu();
-    }
-    else {
-        if (count>1000) { cout << "Your puzzle has over one thousand solutions." << endl; }
-        else {cout << "Your puzzle has exactly "+to_string(count)+" solutions." << endl; }
-        // nonunique_menu();
-    }
-    
-    // The first thing we do after getting the puzzle is check that the entries do not already violate
-    //   any rules (namely that there are no repeat numbers in any row, column, or house and that all
-    //   unfilled cells have at least one available option).
-    if (P.check_for_obvious_problems()) {
-        cout << "Uh-oh!  There are some problems with the puzzle board.\n";
-        P.print_obvious_problems();
-        return 0;
+    while (main_choice > 0) {
+        if (main_choice == 1) { menu_learn(); }
+        else if (main_choice == 2) { menu_enter(); }
+        else if (main_choice == 3) { menu_learn(); }
+        
+        main_choice = menu_main();
     }
     
     return 0;
