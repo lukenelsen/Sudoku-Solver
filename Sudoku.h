@@ -66,6 +66,7 @@ public:
     void unapply_last_step();
     void reset_to_initialized();
     int count_solutions();
+    bool try_single_cell_option();
 };
 
 

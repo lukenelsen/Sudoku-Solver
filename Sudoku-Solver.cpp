@@ -2,7 +2,8 @@
 //  main.cpp
 //  Sudoku-Solver
 //
-//  Created by Luke Nelsen on 10/12/20.
+//  Created by Luke Nelsen beginning 10/12/20.
+//  Last updated 11/17/20.
 //  Copyright © 2020 Luke Nelsen. All rights reserved.
 //
 
@@ -41,7 +42,8 @@ void learn_no_solutions(Puzzle & P) {
 
 
 
-void view_log(Puzzle & P) {
+void view_log(Puzzle & P) { // Needs updated to add a pause!
+    P.print_log();
     return;
 }
 
@@ -943,10 +945,13 @@ bool Puzzle::move_to_next_solution() {
             if (!bump_last_guess()) { return false; }
         }
         
-        // At this point in the loop we are ready to move forward and make our next guess!
-        vector<int> coords = choose_guess_cell();
-        make_guess(coords[0],coords[1]);
-        update_available_options_after_written(coords[0], coords[1], step_stack.back().stepunit_stack.back().entry);
+        // At this point in the loop we are ready to move forward and make our next move!
+        if (try_single_cell_option()) {}
+        else {
+            vector<int> coords = choose_guess_cell();
+            make_guess(coords[0],coords[1]);
+            update_available_options_after_written(coords[0], coords[1], step_stack.back().stepunit_stack.back().entry);
+        }
         
         // Lastly, check to see if the board is now filled---if so, we've arrived at our next solution!
         if (is_board_filled()) { return true; }
@@ -979,5 +984,22 @@ int Puzzle::count_solutions() {
 
 
 
-
+bool Puzzle::try_single_cell_option() {
+    // Look for a cell which has only one option; if found, write that option.
+    for (int k=0; k<81; k++) {
+        if (board[k/9][k%9].available.size() == 1) { // Works on first such cell found.
+            int row = k/9;
+            int col = k%9;
+            int value = board[row][col].available.front();
+            StepUnit stepunit("write", row, col, value, board[row][col].available);
+            Step step("Single Cell Option");
+            step.log_line = "The only option for r"+to_string(row+1)+"c"+to_string(col+1)+" is "+to_string(value)+".";
+            step.stepunit_stack.push_back(stepunit);
+            apply_step(step);
+            update_available_options_after_written(row, col, value);
+            return true;
+        }
+    }
+    return false;
+}
 
