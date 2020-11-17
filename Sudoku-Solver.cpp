@@ -552,8 +552,8 @@ Puzzle::Puzzle(string board_input) {
             }
         }
     }
-    step.log_line = "User entered the following puzzle:\n"+make_board_entry_string();
     apply_step(step);
+    step_stack.front().log_line = "User entered the following puzzle:\n"+make_board_entry_string();
     update_available_options_all();
     init_step = step_stack.back();
 }
