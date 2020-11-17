@@ -14,6 +14,7 @@ public:
     list<int> available;
     Cell() {value = 0; available = {1,2,3,4,5,6,7,8,9};};  // 0 means an empty space
     Cell(int v) {value = v; available = {};};
+    bool has_option(int value);
 };
 
 
@@ -67,6 +68,7 @@ public:
     void reset_to_initialized();
     int count_solutions();
     bool try_single_cell_option();
+    bool try_single_representative();
 };
 
 

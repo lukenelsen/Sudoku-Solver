@@ -288,7 +288,9 @@ Puzzle get_puzzle_from_user() {
                     || (row_input == "sample2") || (row_input == "sample3")
                     || (row_input == "sample4") || (row_input == "sample5")
                     || (row_input == "sample6") || (row_input == "sample7")
-                    || (row_input == "dots")) { break; }  // Shortcut for testing
+                    || (row_input == "dots") || (row_input == "testsreprow")
+                    || (row_input == "testsrepcol")
+                    || (row_input == "testsrephouse")) { break; }  // Shortcut for testing
                 bool valid_row = true;
                 if (row_input.length() != 9) {
                     cout << "   Oops!  You entered " << row_input.length() << " characters, not 9." << endl;
@@ -345,6 +347,22 @@ Puzzle get_puzzle_from_user() {
             }
             else if (row_input == "sample7") {  // Shortcut for testing
                 board_input = ".743...25.3..476....1....3.....6....4.6.9.3.2....5.....5.......1.2.3..8.36...521.";
+                break;
+            }
+            else if (row_input == "testsreprow") {  // Shortcut for testing
+                board_input = "1...........................1......................................1...........1.";
+                break;
+            }
+            else if (row_input == "testsreprow") {  // Shortcut for testing
+                board_input = "1...........................1......................................1...........1.";
+                break;
+            }
+            else if (row_input == "testsrepcol") {  // Shortcut for testing
+                board_input = "1...........................1....................................2........3......";
+                break;
+            }
+            else if (row_input == "testsrephouse") {  // Shortcut for testing
+                board_input = "1..............4.3........2....................................................1.";
                 break;
             }
         }
@@ -982,6 +1000,7 @@ bool Puzzle::move_to_next_solution() {
         
         // At this point in the loop we are ready to move forward and make our next move!
         if (try_single_cell_option()) {}
+        else if (try_single_representative()) {}
         else {
             vector<int> coords = choose_guess_cell();
             make_guess(coords[0],coords[1]);
@@ -1037,4 +1056,69 @@ bool Puzzle::try_single_cell_option() {
     }
     return false;
 }
+
+
+
+bool Cell::has_option(int value) {
+    list<int>::iterator it = available.begin();
+    while (it != available.end()) { if (*it++ == value) { return true; } }
+    return false;
+}
+
+    
+    
+bool Puzzle::try_single_representative() {
+    // Look for an option which shows up only once in some row/column/house; if found, write that option.  Works on first such option found.
+    bool flag = false;
+    int row, col, value;
+    string s;
+    // First, check rows:
+    for (int k=0; k<9; k++) {
+        for (int val=0; val<9; val++) {
+            int count = 0;
+            for (int i=0; i<9; i++) {
+                if (board[k][i].has_option(val)) { count++; col = i; }
+            }
+            if (count == 1) { row = k; value = val; s = "row"; flag = true; break; }
+        }
+        if (flag) { break; }
+    }
+    // Next, check columns:
+    if (!flag) {
+        for (int k=0; k<9; k++) {
+            for (int val=0; val<9; val++) {
+                int count = 0;
+                for (int i=0; i<9; i++) {
+                    if (board[i][k].has_option(val)) { count++; row = i; }
+                }
+                if (count == 1) { col = k; value = val; s = "column"; flag = true; break; }
+            }
+            if (flag) { break; }
+        }
+    }
+    // Next, check houses:
+    if (!flag) {
+        for (int k=0; k<9; k++) {
+            for (int val=0; val<9; val++) {
+                int count = 0;
+                for (int i=0; i<9; i++) {
+                    if (board[3*(k/3)+(i/3)][3*(k%3)+(i%3)].has_option(val)) { count++; row = 3*(k/3)+(i/3); col = 3*(k%3)+(i%3); }
+                }
+                if (count == 1) { value = val; s = "house"; flag = true; break; }
+            }
+            if (flag) { break; }
+        }
+    }
+    if (flag) {
+        StepUnit stepunit("write", row, col, value, board[row][col].available);
+        Step step("Single Representative ("+s+")");
+        step.log_line = "The option "+to_string(value)+" for r"+to_string(row+1)+"c"+to_string(col+1)+" shows up nowhere else in its "+s+".";
+        step.stepunit_stack.push_back(stepunit);
+        apply_step(step);
+        update_available_options_after_written(row, col, value);
+        return true;
+    }
+    return false;
+}
+
 
