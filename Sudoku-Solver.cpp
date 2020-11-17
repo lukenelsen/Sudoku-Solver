@@ -19,6 +19,17 @@ using namespace std;
 
 // Helper Functions
 
+void wait_for_user() {
+    cout << endl
+    << "Enter any character when you are ready to return to the previous menu. ";
+    string user_input;
+    cin >> user_input;
+    cout << endl << endl;
+    return;
+}
+
+
+
 void menu_learn() {
     return;
 }
@@ -43,7 +54,34 @@ void learn_no_solutions(Puzzle & P) {
 
 
 void view_log(Puzzle & P) { // Needs updated to add a pause!
-    P.print_log();
+    while (true) {
+        cout << endl << "LOG MENU" << endl
+        << "What would you like to do?" << endl
+        << "(1) Show the shorter version of the log" << endl
+        << "(2) Show the full version of the log" << endl
+        << "[0] Return to the Puzzle Menu" << endl << endl;
+        while (true) {
+            cout << "Enter your choice: ";
+            string menu_option;
+            cin >> menu_option;
+            cout << endl;
+            if (menu_option.size()>1) {
+                cout << "Oops!  Your response has more than one character.\n"
+                "Simply type one of \"1\", \"2\", or \"0\" and hit Enter." << endl << endl;
+                continue;
+            }
+            char const choice = menu_option[0];
+            if (choice=='1') { P.print_log_terse(); break; }
+            if (choice=='2') { P.print_log(); break; }
+            else if (choice=='0') { return; }
+            else {
+                cout << "Oops!  Your entry was not a recognized option.\n"
+                "Simply type one of \"1\", \"2\", or \"0\" and hit Enter." << endl << endl;
+                continue;
+            }
+        }
+        wait_for_user();
+    }
     return;
 }
 
@@ -57,11 +95,8 @@ void enter_step(Puzzle & P) {
 
 void show_unique_solution(Puzzle P) {  // Copy the puzzle to not change current state for the user
     P.move_to_next_solution();
-    cout << P.make_board_entry_string() << endl
-         << "Enter any character when you are ready to return to the previous menu. ";
-    string user_input;
-    cin >> user_input;
-    cout << endl << endl;
+    cout << P.make_board_entry_string();
+    wait_for_user();
     return;
 }
 
@@ -142,7 +177,7 @@ void menu_puzzle_unique(Puzzle & P) {
         << endl << "The current state of your puzzle is shown above." << endl
         << "What would you like to do?" << endl
         << "(1) See an expanded view of the puzzle board" << endl
-        << "( ) View the log of steps made so far [not yet available]" << endl
+        << "(2) View the log of steps made so far" << endl
         << "( ) Enter my own step toward solving the puzzle [not yet available]" << endl
         << "(4) Show me the solution" << endl
         << "( ) Show me a next step toward the solution [not yet available]" << endl
@@ -191,7 +226,7 @@ void menu_puzzle_nonunique(Puzzle & P, int num_original_solutions) {
         else { cout << "\nThe current state of your puzzle is shown above ("+current+" possible solutions)." << endl; }
         cout << "What would you like to do?" << endl
         << "(1) See an expanded view of the puzzle board" << endl
-        << "( ) View the log of steps made so far [not yet available]" << endl
+        << "(2) View the log of steps made so far" << endl
         << "( ) Enter my own step toward solving the puzzle [not yet available]" << endl
         << "(4) Show me the next solution from the current state" << endl
         << "( ) Show me a step toward the next solution [not yet available]" << endl
